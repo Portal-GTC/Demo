@@ -880,8 +880,8 @@ document.getElementById('mp-x').addEventListener('click',()=>document.getElement
 document.getElementById('m-part').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 document.getElementById('mp-ok').addEventListener('click',()=>{
   if(!curProj)return;
-  curProj.partidas.push({id:nptid++,nombre:document.getElementById('pnom').value,desc:document.getElementById('pdesc').value,monto:parseInt(document.getElementById('pmonto').value)||0,ejec:parseInt(document.getElementById('pejec').value)||0});
-  ['pdesc','pmonto','pejec'].forEach(i=>document.getElementById(i).value='');
+  curProj.partidas.push({id:nptid++,nombre:document.getElementById('pnom').value,desc:document.getElementById('pdesc').value,monto:parseInt(document.getElementById('pmonto').value)||0,ejec:0});
+  ['pdesc','pmonto'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('m-part').classList.remove('open');
   renderMeta(curProj); renderParts(curProj); drawAll();
 });
