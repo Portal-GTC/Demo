@@ -366,34 +366,37 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
     <span class="sb-name">GTC 360</span>
   </div>
 
-  <div class="sb-nav">
-    <div class="nav-sec">Módulos</div>
+<div class="sb-nav">
+  <div class="nav-sec">Módulos</div>
 
-    <div class="ni active" data-page="crm" id="nav-crm">
-        <i data-lucide="handshake"></i>
-        <span>CRM</span>
-    </div>
-
-    <div class="ni" data-page="proyectos" id="nav-proyectos">
-          <i data-lucide="folder-kanban"></i>
-         <path d="M1 3.5h12M1 7h8M1 10.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-         <span>Proyectos</span>
-      <span class="nbadge" id="proj-badge">0</span>
-    </div>
-
-    <div class="ni" data-page="insumos" id="nav-insumos">
-        <i data-lucide="brick-wall"></i>
-       <span>Insumos</span>
-    </div>
-    <div class="ni" data-page="Mano de obra" id="nav-manodeobra">
-        <i data-lucide="hard-hat"></i>
-       <span>Mano de obra</span>
-    </div>
-    <div class="ni" data-page="Indirectos" id="nav-Indirectos">
-        <i data-lucide="forklift"></i>
-       <span>Indirectos</span>
-    </div>    
+  <div class="ni active" data-page="crm" id="nav-crm">
+    <i data-lucide="handshake"></i>
+    <span>CRM</span>
   </div>
+
+  <div class="ni" data-page="proyectos" id="nav-proyectos">
+    <i data-lucide="folder-kanban"></i>
+    <span>Proyectos</span>
+    <span class="nbadge" id="proj-badge">0</span>
+  </div>
+
+  <div class="ni" data-page="insumos" id="nav-insumos">
+    <i data-lucide="brick-wall"></i>
+    <span>Insumos</span>
+  </div>
+
+  <!-- Normalizados: sin espacios y en minúsculas -->
+  <div class="ni" data-page="manodeobra" id="nav-manodeobra">
+    <i data-lucide="hard-hat"></i>
+    <span>Mano de obra</span>
+  </div>
+
+  <div class="ni" data-page="indirectos" id="nav-indirectos">
+    <i data-lucide="forklift"></i>
+    <span>Indirectos</span>
+  </div>
+</div>
+
 
   <div class="sb-user">
     <div class="uavatar" id="uavatar">AD</div>
@@ -761,17 +764,41 @@ function renderParts(p){
 }
 
 // ── NAV ──
-const PAGE_TITLES={crm:'CRM — Oportunidades',proyectos:'Proyectos',insumos:'Insumos'};
-document.querySelectorAll('.ni').forEach(el=>{
-  el.addEventListener('click',()=>{
-    const pg=el.dataset.page;
-    document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+const PAGE_TITLES = {
+  crm: 'CRM — Oportunidades',
+  proyectos: 'Proyectos',
+  insumos: 'Insumos',
+  manodeobra: 'Mano de Obra', // Coincide con data-page="manodeobra"
+  indirectos: 'Indirectos'    // Coincide con data-page="indirectos"
+};
+
+document.querySelectorAll('.ni').forEach(el => {
+  el.addEventListener('click', () => {
+    const pg = el.dataset.page; // Ejemplo: "manodeobra"
+
+    // 1. Gestionar clases activas en el menú
+    document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
     el.classList.add('active');
-    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page-'+pg).classList.add('active');
-    document.getElementById('ptitle').textContent=PAGE_TITLES[pg]||pg;
+
+    // 2. Navegación: Mostrar la página correspondiente
+    // Busca el div con id="page-manodeobra", "page-indirectos", etc.
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const targetPage = document.getElementById('page-' + pg);
+    if (targetPage) {
+      targetPage.classList.add('active');
+    }
+
+    // 3. Actualizar el Título de la barra (ptitle)
+    const ptitleElement = document.getElementById('ptitle');
+    if (ptitleElement) {
+      ptitleElement.textContent = PAGE_TITLES[pg] || pg;
+    }
   });
 });
+
+// No olvides inicializar los iconos si usas Lucide
+lucide.createIcons();
+
 
 // ── CRM EVENTS ──
 document.getElementById('crm-tbody').addEventListener('change', e => {
