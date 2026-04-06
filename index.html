@@ -386,7 +386,7 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
           <thead><tr>
             <th style="width:22%">Proyecto</th><th style="width:15%">Cliente</th>
             <th style="width:13%">Contrato</th><th style="width:13%">Presupuesto</th>
-            <th style="width:10%">Variación</th><th style="width:13%">Avance</th>
+            <th style="width:10%">%Ejecución</th><th style="width:13%">Avance</th>
             <th style="width:9%">Estatus</th><th style="width:5%"></th>
           </tr></thead>
           <tbody id="proj-tbody"></tbody>
@@ -437,7 +437,7 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
         <table><thead><tr>
           <th style="width:22%">Partida</th><th style="width:22%">Descripción</th>
           <th style="width:18%">Presupuestado</th><th style="width:18%">Ejecutado</th>
-          <th style="width:14%">Variación</th><th style="width:6%"></th>
+          <th style="width:14%">Diferencia</th><th style="width:6%"></th>
         </tr></thead><tbody id="presup-tbody"></tbody></table>
         <div class="pt" id="presup-total"></div>
       </div>
@@ -474,7 +474,6 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
     <div class="fr"><label>Partida</label><select id="pnom"><option>Equipo</option><option>Herramientas</option><option>Indirectos</option><option>Mano de obra</option><option>Materiales</option></select></div>
     <div class="fr"><label>Descripción</label><input id="pdesc" placeholder="Detalle opcional"></div>
     <div class="fr"><label>Monto presupuestado ($)</label><input id="pmonto" type="number" placeholder="0"></div>
-    <div class="fr"><label>Monto ejecutado ($)</label><input id="pejec" type="number" placeholder="0"></div>
     <div class="mbtns"><button class="bcn" id="mp-x">Cancelar</button><button class="bsv" id="mp-ok">Agregar partida</button></div>
   </div>
 </div>
@@ -505,7 +504,7 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
           <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Presupuestado</div><div id="ins-sel-monto" style="font-size:13px;font-weight:600;color:#1a1a18;margin-top:2px"></div></div>
           <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Ya ejecutado</div><div id="ins-sel-ejec" style="font-size:13px;font-weight:600;color:#2563eb;margin-top:2px"></div></div>
-          <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Disponible</div><div id="ins-sel-disp" style="font-size:13px;font-weight:600;color:#16a34a;margin-top:2px"></div></div>
+          <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Por ejecutar</div><div id="ins-sel-disp" style="font-size:13px;font-weight:600;color:#16a34a;margin-top:2px"></div></div>
         </div>
         <div style="margin-top:10px">
           <div style="height:4px;background:#e4e4e0;border-radius:2px;overflow:hidden"><div id="ins-prog" style="height:100%;background:#2563eb;border-radius:2px;transition:width .3s"></div></div>
@@ -689,7 +688,7 @@ function renderMeta(p){
     {l:'Monto de contrato',v:fmt(p.contrato)},
     {l:'Presupuesto cargado',v:pr?fmt(pr):'Sin cargar'},
     {l:'Monto ejecutado',v:ej?fmt(ej):'—'},
-    {l:'Variación',v:pr?`<span style="color:${vc}">${vr>=0?'+':''}${fmt(Math.abs(vr))}</span>`:'—'},
+    {l:'Por ejecutar',v:pr?`<span style="color:${vc}">${vr>=0?'+':''}${fmt(Math.abs(vr))}</span>`:'—'},
     {l:'Avance del proyecto',v:p.avance+'%'},
     {l:'Estatus',v:`<span class="badge ${BC[p.estatus]||'ba'}">${p.estatus}</span>`},
   ].map(m=>`<div class="mc"><div class="ml">${m.l}</div><div class="mv">${m.v}</div></div>`).join('');
@@ -707,7 +706,7 @@ function renderParts(p){
       <td style="text-align:center"><button class="db pt-del" data-pid="${x.id}">✕</button></td>
     </tr>`;
   }).join('')||`<tr><td colspan="6" style="text-align:center;padding:20px;color:#9e9e99;font-size:12px">Agrega la primera partida de presupuesto.</td></tr>`;
-  document.getElementById('presup-total').innerHTML=`<span>Presupuestado: <strong>${fmt(pr)}</strong></span><span>Ejecutado: <strong>${fmt(ej)}</strong></span><span style="color:${vr>=0?'#16a34a':'#dc2626'};font-weight:600">Variación: ${vr>=0?'+':''}${fmt(Math.abs(vr))}</span>`;
+  document.getElementById('presup-total').innerHTML=`<span>Presupuestado: <strong>${fmt(pr)}</strong></span><span>Ejecutado: <strong>${fmt(ej)}</strong></span><span style="color:${vr>=0?'#16a34a':'#dc2626'};font-weight:600">Por ejecutar: ${vr>=0?'+':''}${fmt(Math.abs(vr))}</span>`;
 }
 
 // ── NAV ──
