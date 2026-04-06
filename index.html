@@ -335,6 +335,15 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
       Proyectos
       <span class="nbadge" id="proj-badge">0</span>
     </div>
+
+    <div class="ni" data-page="insumos" id="nav-insumos">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="1" width="12" height="3" rx="1" fill="currentColor" opacity=".8"/>
+        <rect x="1" y="5.5" width="12" height="3" rx="1" fill="currentColor" opacity=".5"/>
+        <rect x="1" y="10" width="7" height="3" rx="1" fill="currentColor" opacity=".3"/>
+      </svg>
+      Insumos
+    </div>
   </div>
 
   <div class="sb-user">
@@ -381,6 +390,28 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
             <th style="width:9%">Estatus</th><th style="width:5%"></th>
           </tr></thead>
           <tbody id="proj-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INSUMOS PAGE -->
+    <div class="content page" id="page-insumos">
+      <div class="kpis" id="ins-kpis"></div>
+      <div class="sh">
+        <span class="st">Proyectos con presupuesto cargado</span>
+        <span style="font-size:11px;color:#9e9e99">Haz clic en un proyecto para registrar ejecución</span>
+      </div>
+      <div class="gw">
+        <table>
+          <thead><tr>
+            <th style="width:28%">Proyecto</th>
+            <th style="width:18%">Cliente</th>
+            <th style="width:15%">Contrato</th>
+            <th style="width:15%">Presupuesto</th>
+            <th style="width:15%">Ejecutado (Mat/Eq/Herr)</th>
+            <th style="width:9%">Partidas</th>
+          </tr></thead>
+          <tbody id="ins-tbody"></tbody>
         </table>
       </div>
     </div>
@@ -445,6 +476,59 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
     <div class="fr"><label>Monto presupuestado ($)</label><input id="pmonto" type="number" placeholder="0"></div>
     <div class="fr"><label>Monto ejecutado ($)</label><input id="pejec" type="number" placeholder="0"></div>
     <div class="mbtns"><button class="bcn" id="mp-x">Cancelar</button><button class="bsv" id="mp-ok">Agregar partida</button></div>
+  </div>
+</div>
+
+<!-- MODAL INSUMOS: seleccionar proyecto -->
+<div class="mbg" id="m-ins">
+  <div class="modal" style="width:560px;max-width:95vw">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <h3 id="ins-modal-title" style="margin-bottom:2px">Registrar ejecución</h3>
+        <p id="ins-modal-sub" style="font-size:11px;color:#9e9e99"></p>
+      </div>
+      <button class="bcn" id="m-ins-x" style="padding:4px 10px;font-size:11px">✕</button>
+    </div>
+
+    <!-- Step 1: elegir partida -->
+    <div id="ins-step1">
+      <p style="font-size:11px;color:#6b6b66;margin-bottom:10px;font-weight:500">Selecciona la partida a ejecutar:</p>
+      <div id="ins-partidas-list" style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto"></div>
+    </div>
+
+    <!-- Step 2: ingresar monto -->
+    <div id="ins-step2" style="display:none">
+      <div style="background:#f9fafb;border:1px solid #e4e4e0;border-radius:8px;padding:12px;margin-bottom:14px">
+        <div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Partida seleccionada</div>
+        <div id="ins-sel-nombre" style="font-size:13px;font-weight:600;color:#1a1a18"></div>
+        <div id="ins-sel-desc" style="font-size:11px;color:#6b6b66;margin-top:2px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
+          <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Presupuestado</div><div id="ins-sel-monto" style="font-size:13px;font-weight:600;color:#1a1a18;margin-top:2px"></div></div>
+          <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Ya ejecutado</div><div id="ins-sel-ejec" style="font-size:13px;font-weight:600;color:#2563eb;margin-top:2px"></div></div>
+          <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Disponible</div><div id="ins-sel-disp" style="font-size:13px;font-weight:600;color:#16a34a;margin-top:2px"></div></div>
+        </div>
+        <div style="margin-top:10px">
+          <div style="height:4px;background:#e4e4e0;border-radius:2px;overflow:hidden"><div id="ins-prog" style="height:100%;background:#2563eb;border-radius:2px;transition:width .3s"></div></div>
+        </div>
+      </div>
+      <div class="fr">
+        <label>Concepto / descripción del gasto</label>
+        <input id="ins-concepto" placeholder="Ej: Compra acero estructural — proveedor XYZ">
+      </div>
+      <div class="fr">
+        <label>Monto a ejecutar ($)</label>
+        <input id="ins-monto" type="number" placeholder="0" min="0">
+        <div id="ins-aviso" style="display:none;font-size:10px;color:#b45309;margin-top:4px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px"></div>
+      </div>
+      <div class="fr">
+        <label>Fecha del gasto</label>
+        <input id="ins-fecha" type="date">
+      </div>
+      <div class="mbtns">
+        <button class="bcn" id="ins-back-btn">← Cambiar partida</button>
+        <button class="bsv" id="ins-ok">Registrar ejecución</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -519,11 +603,11 @@ let crm=[
 ];
 let proyectos=[{id:1,nombre:'Alltura Edificio 2',cliente:'Dosax',contrato:63000000,estatus:'Activo',avance:35,
   partidas:[
-    {id:1,nombre:'Materiales',desc:'Acero y cobre',monto:12400000,ejec:9500000},
-    {id:2,nombre:'Equipo',desc:'Condensadoras VRF',monto:1800000,ejec:5200000},
-    {id:2,nombre:'Herramientas',desc:'Juegos de brocas',monto:2400000,ejec:5200000},
-    {id:2,nombre:'Mano de obra',desc:'Cuadrillas instalación',monto:14400000,ejec:5200000},
-    {id:3,nombre:'Indirectos',desc:'Servicios generales',monto:9700000,ejec:6000000},
+    {id:1,nombre:'Materiales',desc:'Acero y cobre',monto:12400000,ejec:0},
+    {id:2,nombre:'Equipo',desc:'Condensadoras VRF',monto:1800000,ejec:0},
+    {id:3,nombre:'Herramientas',desc:'Juegos de brocas',monto:2400000,ejec:0},
+    {id:4,nombre:'Mano de obra',desc:'Cuadrillas instalación',monto:14400000,ejec:5200000},
+    {id:5,nombre:'Indirectos',desc:'Servicios generales',monto:9700000,ejec:6000000},
   ]
 }];
 let ncid=5,npid=2,nptid=10,curProj=null,pendG=null;
@@ -531,7 +615,7 @@ let ncid=5,npid=2,nptid=10,curProj=null,pendG=null;
 function drawAll(){
   document.getElementById('tdate').textContent='Actualizado: '+todayStr();
   document.getElementById('proj-badge').textContent=proyectos.length;
-  drawCRM(); drawProj();
+  drawCRM(); drawProj(); drawInsumos();
 }
 
 function drawCRM(){
@@ -627,6 +711,7 @@ function renderParts(p){
 }
 
 // ── NAV ──
+const PAGE_TITLES={crm:'CRM — Oportunidades',proyectos:'Proyectos',insumos:'Insumos'};
 document.querySelectorAll('.ni').forEach(el=>{
   el.addEventListener('click',()=>{
     const pg=el.dataset.page;
@@ -634,7 +719,7 @@ document.querySelectorAll('.ni').forEach(el=>{
     el.classList.add('active');
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('page-'+pg).classList.add('active');
-    document.getElementById('ptitle').textContent=pg==='crm'?'CRM — Oportunidades':'Proyectos';
+    document.getElementById('ptitle').textContent=PAGE_TITLES[pg]||pg;
   });
 });
 
@@ -743,6 +828,155 @@ document.getElementById('m-crm-ok').addEventListener('click',()=>{
   crm.push({id:ncid++,op,cl,val,band:document.getElementById('mband').value,est:document.getElementById('mest').value,fecha});
   ['mop','mcl','mval'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('m-crm').classList.remove('open'); drawAll();
+});
+
+// ── INSUMOS ──
+const INS_CATS=['Materiales','Equipo','Herramientas'];
+let insProj=null, insPart=null;
+
+function drawInsumos(){
+  // Solo proyectos que tienen al menos 1 partida de las 3 categorías
+  const elegibles=proyectos.filter(p=>p.partidas.some(x=>INS_CATS.includes(x.nombre)));
+  const totalEjec=elegibles.reduce((a,p)=>a+getInsEjec(p),0);
+  const totalPresp=elegibles.reduce((a,p)=>a+getInsPresp(p),0);
+
+  document.getElementById('ins-kpis').innerHTML=[
+    {l:'Proyectos con insumos',v:elegibles.length,s:'con Materiales, Equipo o Herramientas'},
+    {l:'Presupuesto (Mat/Eq/Herr)',v:fmt(totalPresp),s:'suma de partidas elegibles'},
+    {l:'Ejecutado (Mat/Eq/Herr)',v:fmt(totalEjec),s:'registrado desde insumos'},
+    {l:'Disponible',v:fmt(totalPresp-totalEjec),s:'por ejecutar'},
+  ].map(k=>`<div class="kpi"><div class="kpi-l">${k.l}</div><div class="kpi-v">${k.v}</div><div class="kpi-s">${k.s}</div></div>`).join('');
+
+  document.getElementById('ins-tbody').innerHTML=elegibles.length
+    ? elegibles.map(p=>{
+        const partsEleg=p.partidas.filter(x=>INS_CATS.includes(x.nombre));
+        const presp=getInsPresp(p), ejec=getInsEjec(p);
+        const pct=presp?Math.round(ejec/presp*100):0;
+        return `<tr class="ins-row" data-pid="${p.id}" style="cursor:pointer">
+          <td style="font-weight:500">${p.nombre}</td>
+          <td>${p.cliente}</td>
+          <td>${fmt(p.contrato)}</td>
+          <td>${fmt(presp)}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div class="pb" style="flex:1"><div class="pf" style="width:${pct}%;background:#2563eb"></div></div>
+              <span style="font-size:10px;color:#6b6b66;min-width:50px">${fmt(ejec)}</span>
+            </div>
+          </td>
+          <td style="text-align:center">
+            <span style="background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px">${partsEleg.length}</span>
+          </td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="6" style="text-align:center;padding:28px;color:#9e9e99;font-size:12px">No hay proyectos con partidas de Materiales, Equipo o Herramientas cargadas.</td></tr>`;
+}
+
+function getInsPresp(p){ return p.partidas.filter(x=>INS_CATS.includes(x.nombre)).reduce((a,x)=>a+x.monto,0); }
+function getInsEjec(p){ return p.partidas.filter(x=>INS_CATS.includes(x.nombre)).reduce((a,x)=>a+x.ejec,0); }
+
+// Click fila insumos → abrir modal paso 1
+document.getElementById('ins-tbody').addEventListener('click',e=>{
+  const row=e.target.closest('.ins-row');
+  if(!row)return;
+  const p=proyectos.find(x=>x.id===parseInt(row.dataset.pid));
+  if(!p)return;
+  insProj=p; insPart=null;
+  document.getElementById('ins-modal-title').textContent='Registrar ejecución';
+  document.getElementById('ins-modal-sub').textContent=p.nombre+' — '+p.cliente;
+  renderInsStep1(p);
+  document.getElementById('ins-step1').style.display='block';
+  document.getElementById('ins-step2').style.display='none';
+  document.getElementById('m-ins').classList.add('open');
+});
+
+function renderInsStep1(p){
+  const partsEleg=p.partidas.filter(x=>INS_CATS.includes(x.nombre));
+  document.getElementById('ins-partidas-list').innerHTML=partsEleg.map(x=>{
+    const pct=x.monto?Math.round(x.ejec/x.monto*100):0;
+    const disp=x.monto-x.ejec;
+    const agotada=disp<=0;
+    return `<div class="ins-part-item" data-pid="${x.id}" style="border:1px solid ${agotada?'#fecaca':'#e4e4e0'};border-radius:10px;padding:12px 14px;cursor:${agotada?'not-allowed':'pointer'};background:${agotada?'#fef2f2':'#fff'};transition:border-color .12s,background .12s;opacity:${agotada?'.6':'1'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="background:${agotada?'#fef2f2':'#eff6ff'};color:${agotada?'#b91c1c':'#1d4ed8'};font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">${x.nombre}</span>
+          <span style="font-size:12px;font-weight:500;color:#1a1a18">${x.desc||'—'}</span>
+        </div>
+        ${agotada?'<span style="font-size:10px;color:#b91c1c;font-weight:600">Agotado</span>':'<span style="font-size:11px;color:#16a34a;font-weight:600">Seleccionar →</span>'}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;margin-bottom:8px">
+        <div><span style="color:#9e9e99">Presupuesto</span><br><strong>${fmt(x.monto)}</strong></div>
+        <div><span style="color:#9e9e99">Ejecutado</span><br><strong style="color:#2563eb">${fmt(x.ejec)}</strong></div>
+        <div><span style="color:#9e9e99">Disponible</span><br><strong style="color:${disp>0?'#16a34a':'#dc2626'}">${fmt(disp)}</strong></div>
+      </div>
+      <div class="pb"><div class="pf" style="width:${Math.min(pct,100)}%;background:${pct>=100?'#dc2626':'#2563eb'}"></div></div>
+    </div>`;
+  }).join('') || `<p style="color:#9e9e99;font-size:12px;text-align:center;padding:16px">Sin partidas elegibles (Materiales, Equipo, Herramientas).</p>`;
+
+  // clicks en items no agotados
+  document.querySelectorAll('.ins-part-item').forEach(el=>{
+    const x=partsEleg.find(p=>p.id===parseInt(el.dataset.pid));
+    if(!x||x.monto-x.ejec<=0)return;
+    el.addEventListener('mouseenter',()=>{ el.style.borderColor='#2563eb'; el.style.background='#f8faff'; });
+    el.addEventListener('mouseleave',()=>{ el.style.borderColor='#e4e4e0'; el.style.background='#fff'; });
+    el.addEventListener('click',()=>openInsStep2(x));
+  });
+}
+
+function openInsStep2(x){
+  insPart=x;
+  const disp=x.monto-x.ejec;
+  const pct=x.monto?Math.round(x.ejec/x.monto*100):0;
+  document.getElementById('ins-sel-nombre').textContent=x.nombre;
+  document.getElementById('ins-sel-desc').textContent=x.desc||'—';
+  document.getElementById('ins-sel-monto').textContent=fmt(x.monto);
+  document.getElementById('ins-sel-ejec').textContent=fmt(x.ejec);
+  document.getElementById('ins-sel-disp').textContent=fmt(disp);
+  document.getElementById('ins-prog').style.width=Math.min(pct,100)+'%';
+  document.getElementById('ins-monto').value='';
+  document.getElementById('ins-concepto').value='';
+  document.getElementById('ins-fecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('ins-aviso').style.display='none';
+  document.getElementById('ins-step1').style.display='none';
+  document.getElementById('ins-step2').style.display='block';
+}
+
+document.getElementById('ins-back-btn').addEventListener('click',()=>{
+  document.getElementById('ins-step2').style.display='none';
+  document.getElementById('ins-step1').style.display='block';
+  insPart=null;
+});
+
+document.getElementById('ins-monto').addEventListener('input',()=>{
+  if(!insPart)return;
+  const v=parseInt(document.getElementById('ins-monto').value)||0;
+  const disp=insPart.monto-insPart.ejec;
+  const aviso=document.getElementById('ins-aviso');
+  if(v>disp){
+    aviso.textContent=`⚠ El monto (${fmt(v)}) supera el disponible (${fmt(disp)}). Se registrará pero generará sobreejercicio.`;
+    aviso.style.display='block';
+  } else { aviso.style.display='none'; }
+});
+
+document.getElementById('ins-ok').addEventListener('click',()=>{
+  if(!insProj||!insPart)return;
+  const monto=parseInt(document.getElementById('ins-monto').value)||0;
+  if(monto<=0){ alert('Ingresa un monto mayor a cero.'); return; }
+  // Actualizar la partida del proyecto (ejec acumulado)
+  const partida=insProj.partidas.find(x=>x.id===insPart.id);
+  if(partida){ partida.ejec+=monto; }
+  document.getElementById('m-ins').classList.remove('open');
+  insProj=null; insPart=null;
+  drawAll();
+  // Si el detalle está abierto y es el mismo proyecto, refrescar
+  if(curProj&&curProj.id===insProj?.id){ renderMeta(curProj); renderParts(curProj); }
+});
+
+document.getElementById('m-ins-x').addEventListener('click',()=>{
+  document.getElementById('m-ins').classList.remove('open');
+  insProj=null; insPart=null;
+});
+document.getElementById('m-ins').addEventListener('click',e=>{
+  if(e.target===e.currentTarget){ e.currentTarget.classList.remove('open'); insProj=null; insPart=null; }
 });
 </script>
 </body>
