@@ -160,7 +160,7 @@ body { font-family:'DM Sans',system-ui,sans-serif; background:#f3f4f6; min-heigh
   flex-shrink: 0;          
 }
 
-/* 1. Efecto Hover */
+/* 1. Efecto Hover (al pasar el mouse) */
 .ni:hover {
   background-color: var(--bg3); /* Gris claro de tu root */
   border-radius: var(--r);
@@ -181,12 +181,12 @@ body { font-family:'DM Sans',system-ui,sans-serif; background:#f3f4f6; min-heigh
   font-weight: 600;
 }
 
-/* 4. El Badge en estado activo  */
+/* 4. El Badge en estado activo (ya lo tenías, solo asegúrate que esté así) */
 .ni.active .nbadge {
   background: #1e40af; 
 }
 
-/* 5. Transición suave  */
+/* 5. Transición suave para que se vea más profesional */
 .ni {
   transition: all 0.2s ease;
   user-select: none;
@@ -385,6 +385,11 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
     <span>Insumos</span>
   </div>
 
+  <div class="ni" data-page="contratos" id="nav-contratos">
+    <i data-lucide="file-signature"></i>
+    <span>Contratos</span>
+  </div>
+
   <!-- Normalizados: sin espacios y en minúsculas -->
   <div class="ni" data-page="manodeobra" id="nav-manodeobra">
     <i data-lucide="hard-hat"></i>
@@ -464,6 +469,38 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
             <th style="width:9%">Partidas</th>
           </tr></thead>
           <tbody id="ins-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CONTRATOS PAGE -->
+    <div class="content page" id="page-contratos">
+      <div class="kpis" id="cont-kpis"></div>
+      <div class="sh">
+        <span class="st">Contratos registrados</span>
+        <button class="abtn" id="cont-add">+ Contrato</button>
+      </div>
+      <div id="cont-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- MANO DE OBRA PAGE -->
+    <div class="content page" id="page-manodeobra">
+      <div class="kpis" id="mo-kpis"></div>
+      <div class="sh">
+        <span class="st">Partidas de Mano de obra</span>
+        <span style="font-size:11px;color:#9e9e99">Carga partidas desde Proyectos → + Partida → Mano de obra</span>
+      </div>
+      <div class="gw">
+        <table>
+          <thead><tr>
+            <th style="width:22%">Proyecto</th>
+            <th style="width:20%">Descripción</th>
+            <th style="width:14%">Presupuestado</th>
+            <th style="width:14%">Ejecutado</th>
+            <th style="width:12%">Variación</th>
+            <th style="width:18%">Contrato asignado</th>
+          </tr></thead>
+          <tbody id="mo-tbody"></tbody>
         </table>
       </div>
     </div>
@@ -585,6 +622,46 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
 <script>
   lucide.createIcons();
 </script>
+
+<!-- MODAL: Nuevo contrato -->
+<div class="mbg" id="m-cont">
+  <div class="modal">
+    <h3>Nuevo contrato</h3>
+    <div class="fr"><label>Nombre del contratista</label><input id="cont-nombre" placeholder="Ej: Justino Pérez"></div>
+    <div class="fr"><label>Tipo de contrato</label>
+      <select id="cont-tipo"><option>Mano de obra</option><option>Indirecto</option></select>
+    </div>
+    <div class="fr"><label>Fecha inicio</label><input id="cont-fi" type="date"></div>
+    <div class="fr"><label>Fecha fin</label><input id="cont-ff" type="date"></div>
+    <div class="mbtns">
+      <button class="bcn" id="m-cont-x">Cancelar</button>
+      <button class="bsv" id="m-cont-ok">Guardar contrato</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Asignar contrato a partida MO -->
+<div class="mbg" id="m-mo-asign">
+  <div class="modal" style="width:440px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h3>Asignar contrato</h3>
+      <button class="bcn" id="m-mo-asign-x" style="padding:4px 10px;font-size:11px">✕</button>
+    </div>
+    <p id="mo-asign-sub" style="font-size:11px;color:#9e9e99;margin-bottom:14px"></p>
+    <div class="fr"><label>Monto ejecutado ($)</label>
+      <input id="mo-ejec-monto" type="number" placeholder="0" min="0">
+    </div>
+    <div class="fr"><label>Contrato</label>
+      <select id="mo-contrato-sel"></select>
+    </div>
+    <div id="mo-cont-info" style="display:none;background:#f9fafb;border:1px solid #e4e4e0;border-radius:8px;padding:10px 12px;margin-top:6px;font-size:11px;color:#6b6b66;line-height:1.7"></div>
+    <div class="mbtns">
+      <button class="bcn" id="m-mo-asign-cancel">Cancelar</button>
+      <button class="bsv" id="m-mo-asign-ok">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── LOGIN ──
 const USERS={'admin':'Gtc2026!'};
@@ -665,10 +742,19 @@ let proyectos=[{id:1,nombre:'Alltura Edificio 2',cliente:'Dosax',contrato:630000
 }];
 let ncid=5,npid=2,nptid=10,curProj=null,pendG=null;
 
+// ── CONTRATOS DATA ──
+let contratos=[
+  {id:1,nombre:'Justino Pérez',tipo:'Mano de obra',fi:'30/03/2026',ff:'12/12/2026'},
+  {id:2,nombre:'Tiburcio Rivera',tipo:'Mano de obra',fi:'10/02/2026',ff:'06/08/2026'},
+  {id:3,nombre:'Mary Martínez',tipo:'Indirecto',fi:'03/03/2026',ff:'11/09/2026'},
+  {id:4,nombre:'Juan López',tipo:'Indirecto',fi:'01/04/2026',ff:'23/06/2026'},
+];
+let ncontid=5;
+
 function drawAll(){
   document.getElementById('tdate').textContent='Actualizado: '+todayStr();
   document.getElementById('proj-badge').textContent=proyectos.length;
-  drawCRM(); drawProj(); drawInsumos();
+  drawCRM(); drawProj(); drawInsumos(); drawContratos(); drawManoObra();
 }
 
 function drawCRM(){
@@ -768,8 +854,9 @@ const PAGE_TITLES = {
   crm: 'CRM — Oportunidades',
   proyectos: 'Proyectos',
   insumos: 'Insumos',
-  manodeobra: 'Mano de Obra', // Coincide con data-page="manodeobra"
-  indirectos: 'Indirectos'    // Coincide con data-page="indirectos"
+  contratos: 'Contratos',
+  manodeobra: 'Mano de Obra',
+  indirectos: 'Indirectos'
 };
 
 document.querySelectorAll('.ni').forEach(el => {
@@ -796,7 +883,7 @@ document.querySelectorAll('.ni').forEach(el => {
   });
 });
 
-// iconos de lucide
+// No olvides inicializar los iconos si usas Lucide
 lucide.createIcons();
 
 
@@ -1048,12 +1135,170 @@ document.getElementById('ins-ok').addEventListener('click',()=>{
   if(curProj&&curProj.id===insProj?.id){ renderMeta(curProj); renderParts(curProj); }
 });
 
-document.getElementById('m-ins-x').addEventListener('click',()=>{
-  document.getElementById('m-ins').classList.remove('open');
-  insProj=null; insPart=null;
+// ── CONTRATOS ──
+function fmtDate(d){ return d||'—'; }
+
+function drawContratos(){
+  const mo=contratos.filter(c=>c.tipo==='Mano de obra');
+  const ind=contratos.filter(c=>c.tipo==='Indirecto');
+  document.getElementById('cont-kpis').innerHTML=[
+    {l:'Total contratos',v:contratos.length,s:'registrados'},
+    {l:'Mano de obra',v:mo.length,s:'contratos activos'},
+    {l:'Indirectos',v:ind.length,s:'contratos activos'},
+    {l:'Partidas asignadas',v:proyectos.reduce((a,p)=>a+p.partidas.filter(x=>x.nombre==='Mano de obra'&&x.contratoId).length,0),s:'con contrato vinculado'},
+  ].map(k=>`<div class="kpi"><div class="kpi-l">${k.l}</div><div class="kpi-v">${k.v}</div><div class="kpi-s">${k.s}</div></div>`).join('');
+
+  const tipoColor={'Mano de obra':'#eff6ff','Indirecto':'#fffbeb'};
+  const tipoText={'Mano de obra':'#1d4ed8','Indirecto':'#b45309'};
+
+  document.getElementById('cont-list').innerHTML = contratos.length
+    ? contratos.map(c=>`
+      <div style="background:#fff;border:1px solid #e4e4e0;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:16px">
+        <div style="width:36px;height:36px;border-radius:50%;background:${tipoColor[c.tipo]};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <span style="font-size:13px;font-weight:700;color:${tipoText[c.tipo]}">${c.nombre.charAt(0)}</span>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#1a1a18">${c.nombre}</div>
+          <div style="font-size:11px;color:#9e9e99;margin-top:2px">${fmtDate(c.fi)} → ${fmtDate(c.ff)}</div>
+        </div>
+        <span style="background:${tipoColor[c.tipo]};color:${tipoText[c.tipo]};font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;flex-shrink:0">${c.tipo}</span>
+        <button class="db cont-del" data-cid="${c.id}" style="flex-shrink:0">✕</button>
+      </div>`).join('')
+    : `<div style="text-align:center;padding:32px;color:#9e9e99;font-size:12px;background:#fff;border:1px solid #e4e4e0;border-radius:10px">Sin contratos registrados. Agrega el primero.</div>`;
+}
+
+// Abrir modal nuevo contrato
+document.getElementById('cont-add').addEventListener('click',()=>{
+  document.getElementById('cont-nombre').value='';
+  document.getElementById('cont-fi').value='';
+  document.getElementById('cont-ff').value='';
+  document.getElementById('m-cont').classList.add('open');
 });
-document.getElementById('m-ins').addEventListener('click',e=>{
-  if(e.target===e.currentTarget){ e.currentTarget.classList.remove('open'); insProj=null; insPart=null; }
+document.getElementById('m-cont-x').addEventListener('click',()=>document.getElementById('m-cont').classList.remove('open'));
+document.getElementById('m-cont').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
+document.getElementById('m-cont-ok').addEventListener('click',()=>{
+  const nombre=document.getElementById('cont-nombre').value.trim();
+  if(!nombre){document.getElementById('cont-nombre').focus();return;}
+  const fi=document.getElementById('cont-fi').value;
+  const ff=document.getElementById('cont-ff').value;
+  const fiFmt=fi?fi.split('-').reverse().join('/'):'';
+  const ffFmt=ff?ff.split('-').reverse().join('/'):'';
+  contratos.push({id:ncontid++,nombre,tipo:document.getElementById('cont-tipo').value,fi:fiFmt,ff:ffFmt});
+  document.getElementById('m-cont').classList.remove('open');
+  drawAll();
+});
+
+// Eliminar contrato
+document.getElementById('cont-list').addEventListener('click',e=>{
+  const b=e.target.closest('.cont-del');
+  if(b){contratos=contratos.filter(c=>c.id!==parseInt(b.dataset.cid));drawAll();}
+});
+
+// ── MANO DE OBRA ──
+let moPart=null; // partida seleccionada para asignar contrato
+
+function drawManoObra(){
+  // Recopilar todas las partidas de tipo "Mano de obra" de todos los proyectos
+  const rows=[];
+  proyectos.forEach(p=>{
+    p.partidas.filter(x=>x.nombre==='Mano de obra').forEach(x=>{
+      rows.push({proj:p, part:x});
+    });
+  });
+
+  const totalPresp=rows.reduce((a,r)=>a+r.part.monto,0);
+  const totalEjec=rows.reduce((a,r)=>a+r.part.ejec,0);
+  const asignadas=rows.filter(r=>r.part.contratoId).length;
+
+  document.getElementById('mo-kpis').innerHTML=[
+    {l:'Partidas de mano de obra',v:rows.length,s:'en todos los proyectos'},
+    {l:'Presupuestado',v:fmt(totalPresp),s:'suma de partidas'},
+    {l:'Ejecutado',v:fmt(totalEjec),s:totalPresp?Math.round(totalEjec/totalPresp*100)+'% del presupuesto':'—'},
+    {l:'Con contrato asignado',v:asignadas,s:'de '+rows.length+' partidas'},
+  ].map(k=>`<div class="kpi"><div class="kpi-l">${k.l}</div><div class="kpi-v">${k.v}</div><div class="kpi-s">${k.s}</div></div>`).join('');
+
+  document.getElementById('mo-tbody').innerHTML = rows.length
+    ? rows.map(({proj:p,part:x})=>{
+        const v=x.monto-x.ejec, vc=v>=0?'#16a34a':'#dc2626';
+        const pct=x.monto?Math.round(x.ejec/x.monto*100):0;
+        const cont=contratos.find(c=>c.id===x.contratoId);
+        return `<tr>
+          <td style="font-weight:500">${p.nombre}<div style="font-size:10px;color:#9e9e99;font-weight:400">${p.cliente}</div></td>
+          <td style="color:#6b6b66;font-size:11px">${x.desc||'—'}</td>
+          <td>${fmt(x.monto)}</td>
+          <td>
+            <div>${fmt(x.ejec)}</div>
+            <div class="pb"><div class="pf" style="width:${Math.min(pct,100)}%;background:#2563eb"></div></div>
+          </td>
+          <td style="color:${vc};font-weight:600">${v>=0?'+':''}${fmt(Math.abs(v))}</td>
+          <td>
+            ${cont
+              ? `<div style="display:flex;align-items:center;gap:6px">
+                   <span style="background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap">${cont.nombre}</span>
+                   <button class="db mo-asign-btn" data-pid="${p.id}" data-xid="${x.id}" title="Cambiar">✎</button>
+                 </div>`
+              : `<button class="abtn mo-asign-btn" data-pid="${p.id}" data-xid="${x.id}" style="font-size:10px;padding:3px 10px">+ Asignar</button>`
+            }
+          </td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="6" style="text-align:center;padding:28px;color:#9e9e99;font-size:12px">
+        Sin partidas de mano de obra. Ve a <strong>Proyectos → + Partida → Mano de obra</strong>.
+       </td></tr>`;
+}
+
+// Click en botón asignar/cambiar contrato
+document.getElementById('mo-tbody').addEventListener('click',e=>{
+  const btn=e.target.closest('.mo-asign-btn');
+  if(!btn)return;
+  const pid=parseInt(btn.dataset.pid), xid=parseInt(btn.dataset.xid);
+  const p=proyectos.find(x=>x.id===pid);
+  if(!p)return;
+  const part=p.partidas.find(x=>x.id===xid);
+  if(!part)return;
+  moPart={proj:p, part};
+
+  // Populate modal
+  document.getElementById('mo-asign-sub').textContent=p.nombre+' — '+part.desc;
+  document.getElementById('mo-ejec-monto').value=part.ejec||'';
+
+  // Solo contratos tipo Mano de obra disponibles
+  const moConts=contratos.filter(c=>c.tipo==='Mano de obra');
+  const sel=document.getElementById('mo-contrato-sel');
+  sel.innerHTML=`<option value="">— Sin asignar —</option>`+
+    moConts.map(c=>`<option value="${c.id}"${c.id===part.contratoId?' selected':''}>${c.nombre} (${c.fi} → ${c.ff})</option>`).join('');
+  updateMoContInfo();
+
+  document.getElementById('m-mo-asign').classList.add('open');
+});
+
+function updateMoContInfo(){
+  const sel=document.getElementById('mo-contrato-sel');
+  const cid=parseInt(sel.value);
+  const info=document.getElementById('mo-cont-info');
+  if(!cid){info.style.display='none';return;}
+  const c=contratos.find(x=>x.id===cid);
+  if(!c){info.style.display='none';return;}
+  info.style.display='block';
+  info.innerHTML=`<strong>${c.nombre}</strong> · ${c.tipo}<br>Vigencia: ${c.fi} al ${c.ff}`;
+}
+
+document.getElementById('mo-contrato-sel').addEventListener('change',updateMoContInfo);
+
+document.getElementById('m-mo-asign-x').addEventListener('click',()=>{document.getElementById('m-mo-asign').classList.remove('open');moPart=null;});
+document.getElementById('m-mo-asign-cancel').addEventListener('click',()=>{document.getElementById('m-mo-asign').classList.remove('open');moPart=null;});
+document.getElementById('m-mo-asign').addEventListener('click',e=>{if(e.target===e.currentTarget){e.currentTarget.classList.remove('open');moPart=null;}});
+
+document.getElementById('m-mo-asign-ok').addEventListener('click',()=>{
+  if(!moPart)return;
+  const ejec=parseInt(document.getElementById('mo-ejec-monto').value)||0;
+  const cid=parseInt(document.getElementById('mo-contrato-sel').value)||null;
+  moPart.part.ejec=ejec;
+  moPart.part.contratoId=cid||undefined;
+  document.getElementById('m-mo-asign').classList.remove('open');
+  moPart=null;
+  drawAll();
+  if(curProj){renderMeta(curProj);renderParts(curProj);}
 });
 </script>
 </body>
