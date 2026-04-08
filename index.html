@@ -222,8 +222,20 @@ body { font-family:'DM Sans',system-ui,sans-serif; background:#f3f4f6; min-heigh
 
 .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
 .kpi { background:var(--bg); border-radius:var(--rl); border:1px solid var(--border); padding:12px 14px; }
-.kpi-l { font-size:10px; color:var(--text3); margin-bottom:4px; font-weight:600; letter-spacing:.3px; text-transform:uppercase; }
-.kpi-v { font-size:18px; font-weight:600; color:var(--text); line-height:1.2; }
+.kpi-l { font-size:10px; color:var(--text3); margin-bottom:4px; font-weight:600; text-transform:uppercase; }
+.kpi-v { font-size:18px; font-weight:700; color:var(--text); }
+
+/* Estilo para el Modal que aparece en tu imagen */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4); display: flex; align-items: center;
+  justify-content: center; z-index: 100;
+}
+.modal-card {
+  background: var(--bg); border-radius: 16px; width: 450px;
+  padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+
 .kpi-s { font-size:10px; color:var(--text3); margin-top:3px; }
 
 .stages { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
@@ -400,6 +412,12 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
     <i data-lucide="forklift"></i>
     <span>Indirectos</span>
   </div>
+
+  <div class="ni" data-page="compras" id="nav-compras">
+    <i data-lucide="shopping-cart"></i>
+    <span>Compras</span>
+    <span class="nbadge" id="compras-badge" style="background:#fef2f2;color:#b91c1c;display:none">0</span>
+  </div>
 </div>
 
 
@@ -443,7 +461,7 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
           <thead><tr>
             <th style="width:22%">Proyecto</th><th style="width:15%">Cliente</th>
             <th style="width:13%">Contrato</th><th style="width:13%">Presupuesto</th>
-            <th style="width:10%">%Ejecución</th><th style="width:13%">Avance</th>
+            <th style="width:10%">%Disponible</th><th style="width:13%">Avance</th>
             <th style="width:9%">Estatus</th><th style="width:5%"></th>
           </tr></thead>
           <tbody id="proj-tbody"></tbody>
@@ -501,6 +519,56 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
             <th style="width:18%">Contrato asignado</th>
           </tr></thead>
           <tbody id="mo-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INDIRECTOS PAGE -->
+    <div class="content page" id="page-indirectos">
+      <div class="kpis" id="ind-kpis"></div>
+      <div class="sh">
+        <span class="st">Proyectos con partidas de Indirectos</span>
+        <span style="font-size:11px;color:#9e9e99">Haz clic en un proyecto para registrar ejecución</span>
+      </div>
+      <div class="gw">
+        <table>
+          <thead><tr>
+            <th style="width:28%">Proyecto</th>
+            <th style="width:18%">Cliente</th>
+            <th style="width:14%">Contrato</th>
+            <th style="width:14%">Presupuesto</th>
+            <th style="width:16%">Solicitado</th>
+            <th style="width:10%">Partidas</th>
+          </tr></thead>
+          <tbody id="ind-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COMPRAS PAGE -->
+    <div class="content page" id="page-compras">
+      <div class="kpis" id="cmp-kpis"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="abtn cmp-filter active" data-f="todos" style="border-radius:20px">Todas</button>
+        <button class="abtn cmp-filter" data-f="pendiente" style="border-radius:20px">Pendientes</button>
+        <button class="abtn cmp-filter" data-f="aprobado" style="border-radius:20px">Aprobadas</button>
+        <button class="abtn cmp-filter" data-f="comprado" style="border-radius:20px">Compradas</button>
+        <button class="abtn cmp-filter" data-f="rechazado" style="border-radius:20px">Rechazadas</button>
+      </div>
+      <div class="gw">
+        <table>
+          <thead><tr>
+            <th style="width:6%">OC#</th>
+            <th style="width:18%">Concepto</th>
+            <th style="width:16%">Proyecto / Partida</th>
+            <th style="width:8%">Cant.</th>
+            <th style="width:12%">Monto</th>
+            <th style="width:10%">Origen</th>
+            <th style="width:10%">Fecha</th>
+            <th style="width:10%">Estatus</th>
+            <th style="width:10%">Acciones</th>
+          </tr></thead>
+          <tbody id="cmp-tbody"></tbody>
         </table>
       </div>
     </div>
@@ -562,6 +630,7 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
     <h3>Nueva partida</h3>
     <div class="fr"><label>Partida</label><select id="pnom"><option>Equipo</option><option>Herramientas</option><option>Indirectos</option><option>Mano de obra</option><option>Materiales</option></select></div>
     <div class="fr"><label>Descripción</label><input id="pdesc" placeholder="Detalle opcional"></div>
+    <div class="fr"><label>Cantidad</label><input id="pcant" type="number" placeholder="1" min="1" value="1"></div>
     <div class="fr"><label>Monto presupuestado ($)</label><input id="pmonto" type="number" placeholder="0"></div>
     <div class="mbtns"><button class="bcn" id="mp-x">Cancelar</button><button class="bsv" id="mp-ok">Agregar partida</button></div>
   </div>
@@ -603,10 +672,16 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
         <label>Concepto / descripción del gasto</label>
         <input id="ins-concepto" placeholder="Ej: Compra acero estructural — proveedor XYZ">
       </div>
-      <div class="fr">
-        <label>Monto a ejecutar ($)</label>
-        <input id="ins-monto" type="number" placeholder="0" min="0">
-        <div id="ins-aviso" style="display:none;font-size:10px;color:#b45309;margin-top:4px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fr">
+          <label>Cantidad</label>
+          <input id="ins-cant" type="number" placeholder="1" min="1" value="1">
+        </div>
+        <div class="fr">
+          <label>Monto total ($)</label>
+          <input id="ins-monto" type="number" placeholder="0" min="0">
+          <div id="ins-aviso" style="display:none;font-size:10px;color:#b45309;margin-top:4px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px"></div>
+        </div>
       </div>
       <div class="fr">
         <label>Fecha del gasto</label>
@@ -619,9 +694,50 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
     </div>
   </div>
 </div>
-<script>
-  lucide.createIcons();
-</script>
+
+<!-- MODAL INDIRECTOS -->
+<div class="mbg" id="m-ind">
+  <div class="modal" style="width:560px;max-width:95vw">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <h3 id="ind-modal-title" style="margin-bottom:2px">Registrar indirecto</h3>
+        <p id="ind-modal-sub" style="font-size:11px;color:#9e9e99"></p>
+      </div>
+      <button class="bcn" id="m-ind-x" style="padding:4px 10px;font-size:11px">✕</button>
+    </div>
+    <div id="ind-step1">
+      <p style="font-size:11px;color:#6b6b66;margin-bottom:10px;font-weight:500">Selecciona la partida a ejecutar:</p>
+      <div id="ind-partidas-list" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto"></div>
+    </div>
+    <div id="ind-step2" style="display:none">
+      <div style="background:#f9fafb;border:1px solid #e4e4e0;border-radius:8px;padding:12px;margin-bottom:14px">
+        <div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px">Partida seleccionada</div>
+        <div id="ind-sel-nombre" style="font-size:13px;font-weight:600;color:#1a1a18"></div>
+        <div id="ind-sel-desc" style="font-size:11px;color:#6b6b66;margin-top:2px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">
+          <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Presupuestado</div><div id="ind-sel-monto" style="font-size:13px;font-weight:600;color:#1a1a18;margin-top:2px"></div></div>
+          <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Solicitado</div><div id="ind-sel-ejec" style="font-size:13px;font-weight:600;color:#2563eb;margin-top:2px"></div></div>
+          <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Disponible</div><div id="ind-sel-disp" style="font-size:13px;font-weight:600;color:#16a34a;margin-top:2px"></div></div>
+        </div>
+        <div style="margin-top:10px"><div style="height:4px;background:#e4e4e0;border-radius:2px;overflow:hidden"><div id="ind-prog" style="height:100%;background:#f59e0b;border-radius:2px;transition:width .3s"></div></div></div>
+      </div>
+      <div class="fr"><label>Concepto / descripción</label><input id="ind-concepto" placeholder="Ej: Servicio de limpieza — proveedor XYZ"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fr"><label>Cantidad</label><input id="ind-cant" type="number" placeholder="1" min="1" value="1"></div>
+        <div class="fr">
+          <label>Monto total ($)</label>
+          <input id="ind-monto" type="number" placeholder="0" min="0">
+          <div id="ind-aviso" style="display:none;font-size:10px;color:#b45309;margin-top:4px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:5px 8px"></div>
+        </div>
+      </div>
+      <div class="fr"><label>Fecha</label><input id="ind-fecha" type="date"></div>
+      <div class="mbtns">
+        <button class="bcn" id="ind-back-btn">← Cambiar partida</button>
+        <button class="bsv" id="ind-ok">Enviar a Compras</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: Nuevo contrato -->
 <div class="mbg" id="m-cont">
@@ -731,15 +847,30 @@ let crm=[
   {id:3,op:'Apice Torre Sur',cl:'Apice Contrucciones',val:54000000,band:'Finalizado',est:'Perdido',fecha:'10/01/2026'},
   {id:4,op:'Alltura Edificio 2',cl:'Dosax',val:63000000,band:'Finalizado',est:'Ganado',fecha:'13/02/2026'},
 ];
-let proyectos=[{id:1,nombre:'Alltura Edificio 2',cliente:'Dosax',contrato:63000000,estatus:'Activo',avance:35,
-  partidas:[
+// Definimos los proyectos con una función para calcular el avance real
+let proyectos = [
+  {
+    id: 1,
+    nombre: 'Alltura Edificio 2',
+    cliente: 'Dosax',
+    contrato: 63000000,
+    estatus: 'Activo',
+partidas:[
     {id:1,nombre:'Materiales',desc:'Acero y cobre',monto:12400000,ejec:0},
     {id:2,nombre:'Equipo',desc:'Condensadoras VRF',monto:1800000,ejec:0},
     {id:3,nombre:'Herramientas',desc:'Juegos de brocas',monto:2400000,ejec:0},
-    {id:4,nombre:'Mano de obra',desc:'Cuadrillas instalación',monto:14400000,ejec:5200000},
-    {id:5,nombre:'Indirectos',desc:'Servicios generales',monto:9700000,ejec:6000000},
-  ]
-}];
+    {id:4,nombre:'Mano de obra',desc:'Cuadrillas instalación',monto:14400000,ejec:0},
+    {id:5,nombre:'Indirectos',desc:'Servicios generales',monto:9700000,ejec:0},
+  ],
+    // Cálculo seguro: si no hay montos, devuelve 0 para evitar errores
+    get avance() {
+      const total = this.partidas.reduce((sum, p) => sum + p.monto, 0);
+      const ejec = this.partidas.reduce((sum, p) => sum + p.ejec, 0);
+      return total > 0 ? Math.round((ejec / total) * 100) : 0;
+    }
+  }
+];
+
 let ncid=5,npid=2,nptid=10,curProj=null,pendG=null;
 
 // ── CONTRATOS DATA ──
@@ -751,10 +882,21 @@ let contratos=[
 ];
 let ncontid=5;
 
+// ── SOLICITUDES DE COMPRA ──
+// origen: 'insumo' | 'indirecto'
+// estatus: 'pendiente' | 'aprobado' | 'rechazado' | 'comprado'
+let solicitudes=[];
+let nsol=1;
+let cmpFiltro='todos';
+
 function drawAll(){
   document.getElementById('tdate').textContent='Actualizado: '+todayStr();
   document.getElementById('proj-badge').textContent=proyectos.length;
-  drawCRM(); drawProj(); drawInsumos(); drawContratos(); drawManoObra();
+  drawCRM(); drawProj(); drawInsumos(); drawContratos(); drawManoObra(); drawIndirectos(); drawCompras();
+  // badge compras pendientes
+  const pend=solicitudes.filter(s=>s.estatus==='pendiente').length;
+  const badge=document.getElementById('compras-badge');
+  badge.textContent=pend; badge.style.display=pend>0?'inline':'none';
 }
 
 function drawCRM(){
@@ -851,12 +993,9 @@ function renderParts(p){
 
 // ── NAV ──
 const PAGE_TITLES = {
-  crm: 'CRM — Oportunidades',
-  proyectos: 'Proyectos',
-  insumos: 'Insumos',
-  contratos: 'Contratos',
-  manodeobra: 'Mano de Obra',
-  indirectos: 'Indirectos'
+  crm:'CRM — Oportunidades', proyectos:'Proyectos', insumos:'Insumos',
+  contratos:'Contratos', manodeobra:'Mano de Obra',
+  indirectos:'Indirectos', compras:'Compras'
 };
 
 document.querySelectorAll('.ni').forEach(el => {
@@ -967,8 +1106,9 @@ document.getElementById('mp-x').addEventListener('click',()=>document.getElement
 document.getElementById('m-part').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 document.getElementById('mp-ok').addEventListener('click',()=>{
   if(!curProj)return;
-  curProj.partidas.push({id:nptid++,nombre:document.getElementById('pnom').value,desc:document.getElementById('pdesc').value,monto:parseInt(document.getElementById('pmonto').value)||0,ejec:0});
+  curProj.partidas.push({id:nptid++,nombre:document.getElementById('pnom').value,desc:document.getElementById('pdesc').value,cant:parseInt(document.getElementById('pcant').value)||1,monto:parseInt(document.getElementById('pmonto').value)||0,ejec:0});
   ['pdesc','pmonto'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('pcant').value='1';
   document.getElementById('m-part').classList.remove('open');
   renderMeta(curProj); renderParts(curProj); drawAll();
 });
@@ -1124,15 +1264,23 @@ document.getElementById('ins-monto').addEventListener('input',()=>{
 document.getElementById('ins-ok').addEventListener('click',()=>{
   if(!insProj||!insPart)return;
   const monto=parseInt(document.getElementById('ins-monto').value)||0;
+  const cant=parseInt(document.getElementById('ins-cant').value)||1;
   if(monto<=0){ alert('Ingresa un monto mayor a cero.'); return; }
-  // Actualizar la partida del proyecto (ejec acumulado)
-  const partida=insProj.partidas.find(x=>x.id===insPart.id);
-  if(partida){ partida.ejec+=monto; }
+  // Crear solicitud de compra (NO impacta ejecutado todavía)
+  solicitudes.push({
+    id:nsol++,
+    oc: 'SOL-'+String(nsol-1).padStart(4,'0'),
+    concepto: document.getElementById('ins-concepto').value||insPart.desc||insPart.nombre,
+    proyectoId: insProj.id, proyectoNombre: insProj.nombre,
+    partidaId: insPart.id, partidaNombre: insPart.nombre,
+    cant, monto,
+    fecha: document.getElementById('ins-fecha').value.split('-').reverse().join('/'),
+    estatus:'pendiente',
+    origen:'insumo'
+  });
   document.getElementById('m-ins').classList.remove('open');
   insProj=null; insPart=null;
   drawAll();
-  // Si el detalle está abierto y es el mismo proyecto, refrescar
-  if(curProj&&curProj.id===insProj?.id){ renderMeta(curProj); renderParts(curProj); }
 });
 
 // ── CONTRATOS ──
@@ -1299,6 +1447,252 @@ document.getElementById('m-mo-asign-ok').addEventListener('click',()=>{
   moPart=null;
   drawAll();
   if(curProj){renderMeta(curProj);renderParts(curProj);}
+});
+
+// ── INDIRECTOS ──
+const IND_CAT='Indirectos';
+let indProj=null, indPart=null;
+
+function getIndPresp(p){ return p.partidas.filter(x=>x.nombre===IND_CAT).reduce((a,x)=>a+x.monto,0); }
+function getIndSol(p){
+  // Suma de solicitudes aprobadas+compradas de indirectos para este proyecto
+  return solicitudes.filter(s=>s.proyectoId===p.id&&s.origen==='indirecto'&&(s.estatus==='aprobado'||s.estatus==='comprado')).reduce((a,s)=>a+s.monto,0);
+}
+
+function drawIndirectos(){
+  const elegibles=proyectos.filter(p=>p.partidas.some(x=>x.nombre===IND_CAT));
+  const totalPresp=elegibles.reduce((a,p)=>a+getIndPresp(p),0);
+  const totalSol=elegibles.reduce((a,p)=>a+getIndSol(p),0);
+  const pendCount=solicitudes.filter(s=>s.origen==='indirecto'&&s.estatus==='pendiente').length;
+
+  document.getElementById('ind-kpis').innerHTML=[
+    {l:'Proyectos con indirectos',v:elegibles.length,s:'con partidas cargadas'},
+    {l:'Presupuesto indirectos',v:fmt(totalPresp),s:'suma de partidas'},
+    {l:'Solicitado (aprobado)',v:fmt(totalSol),s:'impacta en ejecutado'},
+    {l:'Solicitudes pendientes',v:pendCount,s:'en revisión en Compras'},
+  ].map(k=>`<div class="kpi"><div class="kpi-l">${k.l}</div><div class="kpi-v">${k.v}</div><div class="kpi-s">${k.s}</div></div>`).join('');
+
+  document.getElementById('ind-tbody').innerHTML=elegibles.length
+    ? elegibles.map(p=>{
+        const parts=p.partidas.filter(x=>x.nombre===IND_CAT);
+        const presp=getIndPresp(p);
+        const sol=solicitudes.filter(s=>s.proyectoId===p.id&&s.origen==='indirecto'&&s.estatus==='pendiente').reduce((a,s)=>a+s.monto,0);
+        const pct=presp?Math.round(sol/presp*100):0;
+        return `<tr class="ind-row" data-pid="${p.id}" style="cursor:pointer">
+          <td style="font-weight:500">${p.nombre}</td><td>${p.cliente}</td><td>${fmt(p.contrato)}</td>
+          <td>${fmt(presp)}</td>
+          <td><div style="display:flex;align-items:center;gap:6px">
+            <div class="pb" style="flex:1"><div class="pf" style="width:${pct}%;background:#f59e0b"></div></div>
+            <span style="font-size:10px;color:#6b6b66;min-width:50px">${fmt(sol)}</span>
+          </div></td>
+          <td style="text-align:center"><span style="background:#fffbeb;color:#b45309;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px">${parts.length}</span></td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="6" style="text-align:center;padding:28px;color:#9e9e99;font-size:12px">Sin partidas de Indirectos. Ve a <strong>Proyectos → + Partida → Indirectos</strong>.</td></tr>`;
+}
+
+document.getElementById('ind-tbody').addEventListener('click',e=>{
+  const row=e.target.closest('.ind-row'); if(!row)return;
+  const p=proyectos.find(x=>x.id===parseInt(row.dataset.pid)); if(!p)return;
+  indProj=p; indPart=null;
+  document.getElementById('ind-modal-title').textContent='Registrar indirecto';
+  document.getElementById('ind-modal-sub').textContent=p.nombre+' — '+p.cliente;
+  renderIndStep1(p);
+  document.getElementById('ind-step1').style.display='block';
+  document.getElementById('ind-step2').style.display='none';
+  document.getElementById('m-ind').classList.add('open');
+});
+
+function renderIndStep1(p){
+  const parts=p.partidas.filter(x=>x.nombre===IND_CAT);
+  document.getElementById('ind-partidas-list').innerHTML=parts.map(x=>{
+    const solAcum=solicitudes.filter(s=>s.partidaId===x.id&&s.origen==='indirecto'&&(s.estatus==='aprobado'||s.estatus==='comprado')).reduce((a,s)=>a+s.monto,0);
+    const disp=x.monto-solAcum;
+    const pct=x.monto?Math.round(solAcum/x.monto*100):0;
+    const agotada=disp<=0;
+    return `<div class="ind-part-item" data-pid="${x.id}" style="border:1px solid ${agotada?'#fecaca':'#e4e4e0'};border-radius:10px;padding:12px 14px;cursor:${agotada?'not-allowed':'pointer'};background:${agotada?'#fef2f2':'#fff'};opacity:${agotada?'.6':'1'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="background:#fffbeb;color:#b45309;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px">Indirecto</span>
+          <span style="font-size:12px;font-weight:500;color:#1a1a18">${x.desc||'—'}</span>
+          ${x.cant?`<span style="font-size:10px;color:#9e9e99">Cant: ${x.cant}</span>`:''}
+        </div>
+        ${agotada?'<span style="font-size:10px;color:#b91c1c;font-weight:600">Agotado</span>':'<span style="font-size:11px;color:#16a34a;font-weight:600">Seleccionar →</span>'}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;margin-bottom:8px">
+        <div><span style="color:#9e9e99">Presupuesto</span><br><strong>${fmt(x.monto)}</strong></div>
+        <div><span style="color:#9e9e99">Solicitado</span><br><strong style="color:#f59e0b">${fmt(solAcum)}</strong></div>
+        <div><span style="color:#9e9e99">Disponible</span><br><strong style="color:${disp>0?'#16a34a':'#dc2626'}">${fmt(disp)}</strong></div>
+      </div>
+      <div class="pb"><div class="pf" style="width:${Math.min(pct,100)}%;background:${pct>=100?'#dc2626':'#f59e0b'}"></div></div>
+    </div>`;
+  }).join('') || `<p style="color:#9e9e99;font-size:12px;text-align:center;padding:16px">Sin partidas de Indirectos en este proyecto.</p>`;
+
+  document.querySelectorAll('.ind-part-item').forEach(el=>{
+    const x=parts.find(p=>p.id===parseInt(el.dataset.pid));
+    const solAcum=solicitudes.filter(s=>s.partidaId===x?.id&&s.origen==='indirecto'&&(s.estatus==='aprobado'||s.estatus==='comprado')).reduce((a,s)=>a+s.monto,0);
+    if(!x||x.monto-solAcum<=0)return;
+    el.addEventListener('mouseenter',()=>{el.style.borderColor='#f59e0b';el.style.background='#fffdf5';});
+    el.addEventListener('mouseleave',()=>{el.style.borderColor='#e4e4e0';el.style.background='#fff';});
+    el.addEventListener('click',()=>openIndStep2(x));
+  });
+}
+
+function openIndStep2(x){
+  indPart=x;
+  const solAcum=solicitudes.filter(s=>s.partidaId===x.id&&s.origen==='indirecto'&&(s.estatus==='aprobado'||s.estatus==='comprado')).reduce((a,s)=>a+s.monto,0);
+  const disp=x.monto-solAcum;
+  const pct=x.monto?Math.round(solAcum/x.monto*100):0;
+  document.getElementById('ind-sel-nombre').textContent='Indirecto — '+x.desc;
+  document.getElementById('ind-sel-desc').textContent=x.desc||'—';
+  document.getElementById('ind-sel-monto').textContent=fmt(x.monto);
+  document.getElementById('ind-sel-ejec').textContent=fmt(solAcum);
+  document.getElementById('ind-sel-disp').textContent=fmt(disp);
+  document.getElementById('ind-prog').style.width=Math.min(pct,100)+'%';
+  document.getElementById('ind-monto').value='';
+  document.getElementById('ind-concepto').value='';
+  document.getElementById('ind-cant').value=x.cant||1;
+  document.getElementById('ind-fecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('ind-aviso').style.display='none';
+  document.getElementById('ind-step1').style.display='none';
+  document.getElementById('ind-step2').style.display='block';
+}
+
+document.getElementById('ind-back-btn').addEventListener('click',()=>{
+  document.getElementById('ind-step2').style.display='none';
+  document.getElementById('ind-step1').style.display='block';
+  indPart=null;
+});
+document.getElementById('ind-monto').addEventListener('input',()=>{
+  if(!indPart)return;
+  const v=parseInt(document.getElementById('ind-monto').value)||0;
+  const solAcum=solicitudes.filter(s=>s.partidaId===indPart.id&&s.origen==='indirecto'&&(s.estatus==='aprobado'||s.estatus==='comprado')).reduce((a,s)=>a+s.monto,0);
+  const disp=indPart.monto-solAcum;
+  const av=document.getElementById('ind-aviso');
+  if(v>disp){av.textContent=`⚠ Supera el disponible (${fmt(disp)}). Generará sobreejercicio.`;av.style.display='block';}
+  else{av.style.display='none';}
+});
+document.getElementById('ind-ok').addEventListener('click',()=>{
+  if(!indProj||!indPart)return;
+  const monto=parseInt(document.getElementById('ind-monto').value)||0;
+  const cant=parseInt(document.getElementById('ind-cant').value)||1;
+  if(monto<=0){alert('Ingresa un monto mayor a cero.');return;}
+  solicitudes.push({
+    id:nsol++,
+    oc:'SOL-'+String(nsol-1).padStart(4,'0'),
+    concepto:document.getElementById('ind-concepto').value||indPart.desc||'Indirecto',
+    proyectoId:indProj.id, proyectoNombre:indProj.nombre,
+    partidaId:indPart.id, partidaNombre:'Indirectos — '+indPart.desc,
+    cant, monto,
+    fecha:document.getElementById('ind-fecha').value.split('-').reverse().join('/'),
+    estatus:'pendiente',
+    origen:'indirecto'
+  });
+  document.getElementById('m-ind').classList.remove('open');
+  indProj=null; indPart=null;
+  drawAll();
+});
+document.getElementById('m-ind-x').addEventListener('click',()=>{document.getElementById('m-ind').classList.remove('open');indProj=null;indPart=null;});
+document.getElementById('m-ind').addEventListener('click',e=>{if(e.target===e.currentTarget){e.currentTarget.classList.remove('open');indProj=null;indPart=null;}});
+
+// ── COMPRAS ──
+const CMP_COLORS={
+  pendiente:{bg:'#fffbeb',text:'#b45309',label:'Pendiente'},
+  aprobado:{bg:'#eff6ff',text:'#1d4ed8',label:'Aprobada'},
+  rechazado:{bg:'#fef2f2',text:'#b91c1c',label:'Rechazada'},
+  comprado:{bg:'#f0fdf4',text:'#15803d',label:'Comprada'},
+};
+
+function drawCompras(){
+  const pend=solicitudes.filter(s=>s.estatus==='pendiente').length;
+  const apro=solicitudes.filter(s=>s.estatus==='aprobado').length;
+  const comp=solicitudes.filter(s=>s.estatus==='comprado').length;
+  const rech=solicitudes.filter(s=>s.estatus==='rechazado').length;
+  const totalComp=solicitudes.filter(s=>s.estatus==='comprado').reduce((a,s)=>a+s.monto,0);
+
+  document.getElementById('cmp-kpis').innerHTML=[
+    {l:'Pendientes de aprobar',v:pend,s:'en espera'},
+    {l:'Aprobadas',v:apro,s:'listas para comprar'},
+    {l:'Compradas',v:comp,s:fmt(totalComp)+' ejecutado'},
+    {l:'Rechazadas',v:rech,s:'sin impacto en ejecutado'},
+  ].map(k=>`<div class="kpi"><div class="kpi-l">${k.l}</div><div class="kpi-v">${k.v}</div><div class="kpi-s">${k.s}</div></div>`).join('');
+
+  const filtradas=cmpFiltro==='todos'?solicitudes:solicitudes.filter(s=>s.estatus===cmpFiltro);
+
+  document.getElementById('cmp-tbody').innerHTML=filtradas.length
+    ? filtradas.map(s=>{
+        const c=CMP_COLORS[s.estatus];
+        const origenLabel=s.origen==='insumo'?'Insumos':'Indirectos';
+        const origenColor=s.origen==='insumo'?{bg:'#eff6ff',text:'#1d4ed8'}:{bg:'#fffbeb',text:'#b45309'};
+        let acciones='';
+        if(s.estatus==='pendiente'){
+          acciones=`<div style="display:flex;gap:4px">
+            <button class="abtn cmp-aprobar" data-id="${s.id}" style="font-size:10px;padding:3px 8px;color:#15803d;border-color:#bbf7d0">✓ Aprobar</button>
+            <button class="abtn cmp-rechazar" data-id="${s.id}" style="font-size:10px;padding:3px 8px;color:#b91c1c;border-color:#fecaca">✗ Rechazar</button>
+          </div>`;
+        } else if(s.estatus==='aprobado'){
+          acciones=`<button class="abtn cmp-comprar" data-id="${s.id}" style="font-size:10px;padding:3px 8px;background:#1a1a18;color:#fff;border-color:#1a1a18">Comprar →</button>`;
+        } else if(s.estatus==='comprado'){
+          acciones=`<span style="font-size:10px;color:#15803d;font-weight:600">OC generada</span>`;
+        } else {
+          acciones=`<span style="font-size:10px;color:#9e9e99">—</span>`;
+        }
+        return `<tr>
+          <td style="font-size:10px;color:#9e9e99;font-weight:600">${s.oc}</td>
+          <td style="font-weight:500;font-size:11px">${s.concepto}</td>
+          <td style="font-size:11px"><span style="font-weight:500">${s.proyectoNombre}</span><br><span style="color:#9e9e99;font-size:10px">${s.partidaNombre}</span></td>
+          <td style="text-align:center">${s.cant}</td>
+          <td style="font-weight:600">${fmt(s.monto)}</td>
+          <td><span style="background:${origenColor.bg};color:${origenColor.text};font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px">${origenLabel}</span></td>
+          <td style="font-size:11px;color:#6b6b66">${s.fecha}</td>
+          <td><span style="background:${c.bg};color:${c.text};font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px">${c.label}</span></td>
+          <td>${acciones}</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="9" style="text-align:center;padding:28px;color:#9e9e99;font-size:12px">Sin solicitudes. Regístralas desde <strong>Insumos</strong> o <strong>Indirectos</strong>.</td></tr>`;
+}
+
+// Filtros Compras
+document.querySelectorAll('.cmp-filter').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.cmp-filter').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    cmpFiltro=btn.dataset.f;
+    drawCompras();
+  });
+});
+
+// Acciones sobre solicitudes
+document.getElementById('cmp-tbody').addEventListener('click',e=>{
+  const apro=e.target.closest('.cmp-aprobar');
+  const rech=e.target.closest('.cmp-rechazar');
+  const comp=e.target.closest('.cmp-comprar');
+
+  if(apro){
+    const s=solicitudes.find(x=>x.id===parseInt(apro.dataset.id));
+    if(s){s.estatus='aprobado'; drawAll();}
+    return;
+  }
+  if(rech){
+    const s=solicitudes.find(x=>x.id===parseInt(rech.dataset.id));
+    if(s){s.estatus='rechazado'; drawAll();}  // NO impacta ejecutado
+    return;
+  }
+  if(comp){
+    const s=solicitudes.find(x=>x.id===parseInt(comp.dataset.id));
+    if(!s)return;
+    s.estatus='comprado';
+    // AHORA sí impacta ejecutado en el proyecto
+    const proj=proyectos.find(p=>p.id===s.proyectoId);
+    if(proj){
+      const part=proj.partidas.find(x=>x.id===s.partidaId);
+      if(part){part.ejec+=s.monto;}
+    }
+    drawAll();
+    // Mostrar OC generada
+    setTimeout(()=>alert(`✅ Orden de Compra generada\n\nOC: ${s.oc}\nConcepto: ${s.concepto}\nProyecto: ${s.proyectoNombre}\nCantidad: ${s.cant}\nMonto: ${fmt(s.monto)}\nFecha: ${s.fecha}`),100);
+    return;
+  }
 });
 </script>
 </body>
