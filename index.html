@@ -418,6 +418,11 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
     <span>Compras</span>
     <span class="nbadge" id="compras-badge" style="background:#fef2f2;color:#b91c1c;display:none">0</span>
   </div>
+
+  <div class="ni" data-page="estimaciones" id="nav-estimaciones">
+    <i data-lucide="file-text"></i>
+    <span>Estimaciones</span>
+  </div>
 </div>
 
 
@@ -459,9 +464,10 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
       <div class="gw">
         <table>
           <thead><tr>
-            <th style="width:22%">Proyecto</th><th style="width:15%">Cliente</th>
-            <th style="width:13%">Contrato</th><th style="width:13%">Presupuesto</th>
-            <th style="width:10%">%Disponible</th><th style="width:13%">Avance</th>
+            <th style="width:20%">Proyecto</th><th style="width:13%">Cliente</th>
+            <th style="width:11%">Contrato</th><th style="width:11%">Presupuesto</th>
+            <th style="width:11%">Estimado</th>
+            <th style="width:9%">%Disponible</th><th style="width:11%">Avance</th>
             <th style="width:9%">Estatus</th><th style="width:5%"></th>
           </tr></thead>
           <tbody id="proj-tbody"></tbody>
@@ -570,6 +576,51 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
           </tr></thead>
           <tbody id="cmp-tbody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ESTIMACIONES PAGE -->
+    <div class="content page" id="page-estimaciones">
+      <div class="kpis" id="est-kpis"></div>
+      <div class="sh">
+        <span class="st">Estimaciones por proyecto</span>
+        <span style="font-size:11px;color:#9e9e99">Haz clic en un proyecto para registrar una estimación</span>
+      </div>
+      <div class="gw">
+        <table>
+          <thead><tr>
+            <th style="width:24%">Proyecto</th>
+            <th style="width:16%">Cliente</th>
+            <th style="width:14%">Contrato</th>
+            <th style="width:14%">Estimado total</th>
+            <th style="width:12%">Disponible</th>
+            <th style="width:8%">Estimaciones</th>
+            <th style="width:12%">Última</th>
+          </tr></thead>
+          <tbody id="est-proj-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Detalle estimaciones del proyecto seleccionado -->
+      <div id="est-detalle" style="display:none;margin-top:20px">
+        <div class="sh">
+          <span class="st" id="est-detalle-title"></span>
+          <button class="abtn" id="est-nueva-btn">+ Nueva estimación</button>
+        </div>
+        <div class="gw">
+          <table>
+            <thead><tr>
+              <th style="width:12%">Folio</th>
+              <th style="width:30%">Concepto</th>
+              <th style="width:16%">Monto</th>
+              <th style="width:16%">% del contrato</th>
+              <th style="width:14%">Fecha</th>
+              <th style="width:12%">Estatus</th>
+            </tr></thead>
+            <tbody id="est-tbody"></tbody>
+          </table>
+          <div class="pt" id="est-total"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -778,6 +829,39 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
   </div>
 </div>
 
+<!-- MODAL: Nueva estimación -->
+<div class="mbg" id="m-est">
+  <div class="modal" style="width:460px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h3>Nueva estimación</h3>
+      <button class="bcn" id="m-est-x" style="padding:4px 10px;font-size:11px">✕</button>
+    </div>
+    <p id="m-est-sub" style="font-size:11px;color:#9e9e99;margin-bottom:14px"></p>
+
+    <!-- Resumen contrato -->
+    <div id="m-est-resumen" style="background:#f9fafb;border:1px solid #e4e4e0;border-radius:8px;padding:12px;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Monto contrato</div><div id="m-est-contrato" style="font-size:13px;font-weight:600;color:#1a1a18;margin-top:2px"></div></div>
+        <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Ya estimado</div><div id="m-est-ya" style="font-size:13px;font-weight:600;color:#2563eb;margin-top:2px"></div></div>
+        <div><div style="font-size:10px;color:#9e9e99;font-weight:600;text-transform:uppercase;letter-spacing:.3px">Disponible</div><div id="m-est-disp" style="font-size:13px;font-weight:600;color:#16a34a;margin-top:2px"></div></div>
+      </div>
+      <div style="margin-top:10px"><div style="height:4px;background:#e4e4e0;border-radius:2px;overflow:hidden"><div id="m-est-prog" style="height:100%;background:#2563eb;border-radius:2px;transition:width .3s"></div></div></div>
+    </div>
+
+    <div class="fr"><label>Concepto / descripción</label><input id="est-concepto" placeholder="Ej: Estimación 1 — trabajos de instalación tubería"></div>
+    <div class="fr">
+      <label>Monto de la estimación ($)</label>
+      <input id="est-monto" type="number" placeholder="0" min="0">
+      <div id="est-aviso" style="display:none;font-size:10px;color:#b91c1c;margin-top:4px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:5px 8px"></div>
+    </div>
+    <div class="fr"><label>Fecha</label><input id="est-fecha" type="date"></div>
+    <div class="mbtns">
+      <button class="bcn" id="m-est-cancel">Cancelar</button>
+      <button class="bsv" id="m-est-ok">Registrar estimación</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── LOGIN ──
 const USERS={'admin':'Gtc2026!'};
@@ -889,10 +973,17 @@ let solicitudes=[];
 let nsol=1;
 let cmpFiltro='todos';
 
+// ── ESTIMACIONES DATA ──
+// { id, folio, proyectoId, proyectoNombre, concepto, monto, fecha, estatus }
+// estatus: 'emitida' | 'pagada' | 'cancelada'
+let estimaciones=[];
+let nestId=1;
+let estProjSel=null; // proyecto seleccionado en pantalla estimaciones
+
 function drawAll(){
   document.getElementById('tdate').textContent='Actualizado: '+todayStr();
   document.getElementById('proj-badge').textContent=proyectos.length;
-  drawCRM(); drawProj(); drawInsumos(); drawContratos(); drawManoObra(); drawIndirectos(); drawCompras();
+  drawCRM(); drawProj(); drawInsumos(); drawContratos(); drawManoObra(); drawIndirectos(); drawCompras(); drawEstimaciones();
   // badge compras pendientes
   const pend=solicitudes.filter(s=>s.estatus==='pendiente').length;
   const badge=document.getElementById('compras-badge');
@@ -940,15 +1031,19 @@ function drawProj(){
     const pr=p.partidas.reduce((a,x)=>a+x.monto,0);
     const ej=p.partidas.reduce((a,x)=>a+x.ejec,0);
     const vr=pr-ej, vp=pr?Math.round(vr/pr*100):null, vc=vr>=0?'#16a34a':'#dc2626';
+    const montoEst=estimaciones.filter(e=>e.proyectoId===p.id&&e.estatus!=='cancelada').reduce((a,e)=>a+e.monto,0);
+    const pctEst=p.contrato?Math.round(montoEst/p.contrato*100):0;
+    const estColor=montoEst>p.contrato?'#dc2626':montoEst>0?'#2563eb':'#9e9e99';
     return `<tr class="prow" data-pid="${p.id}" style="cursor:pointer">
       <td style="font-weight:500">${p.nombre}</td><td>${p.cliente}</td><td>${fmt(p.contrato)}</td>
       <td>${pr?fmt(pr):'<span style="color:#9e9e99;font-size:10px">Sin cargar</span>'}</td>
+      <td style="color:${estColor};font-weight:600">${montoEst?fmt(montoEst)+'<span style="font-size:10px;font-weight:400;color:'+estColor+'"> ('+pctEst+'%)</span>':'<span style="color:#9e9e99;font-size:10px">Sin estimar</span>'}</td>
       <td style="color:${vp!==null?vc:'#9e9e99'};font-weight:600">${vp!==null?(vp>0?'+':'')+vp+'%':'—'}</td>
       <td><div style="display:flex;align-items:center;gap:6px"><div class="pb" style="flex:1"><div class="pf" style="width:${p.avance}%;background:#2563eb"></div></div><span style="font-size:10px;color:#6b6b66;min-width:28px">${p.avance}%</span></div></td>
       <td><span class="badge ${BC[p.estatus]||'ba'}">${p.estatus}</span></td>
       <td style="text-align:center"><button class="db dp-del" data-pid="${p.id}">✕</button></td>
     </tr>`;
-  }).join('')||`<tr><td colspan="8" style="text-align:center;padding:28px;color:#9e9e99;font-size:12px">Sin proyectos. Las oportunidades <strong>Ganadas</strong> aparecerán aquí.</td></tr>`;
+  }).join('')||`<tr><td colspan="9" style="text-align:center;padding:28px;color:#9e9e99;font-size:12px">Sin proyectos. Las oportunidades <strong>Ganadas</strong> aparecerán aquí.</td></tr>`;
 }
 
 function openDetail(pid){
@@ -966,11 +1061,17 @@ function renderMeta(p){
   const pr=p.partidas.reduce((a,x)=>a+x.monto,0);
   const ej=p.partidas.reduce((a,x)=>a+x.ejec,0);
   const vr=pr-ej, vc=vr>=0?'#16a34a':'#dc2626';
+  const montoEst=estimaciones.filter(e=>e.proyectoId===p.id&&e.estatus!=='cancelada').reduce((a,e)=>a+e.monto,0);
+  const dispEst=p.contrato-montoEst;
+  const estColor=montoEst>p.contrato?'#dc2626':montoEst>0?'#2563eb':'#9e9e99';
+  const pctEst=p.contrato?Math.round(montoEst/p.contrato*100):0;
   document.getElementById('dp-meta').innerHTML=[
     {l:'Monto de contrato',v:fmt(p.contrato)},
     {l:'Presupuesto cargado',v:pr?fmt(pr):'Sin cargar'},
     {l:'Monto ejecutado',v:ej?fmt(ej):'—'},
     {l:'Por ejecutar',v:pr?`<span style="color:${vc}">${vr>=0?'+':''}${fmt(Math.abs(vr))}</span>`:'—'},
+    {l:'Monto estimado',v:montoEst?`<span style="color:${estColor}">${fmt(montoEst)} <span style="font-size:10px;font-weight:400">(${pctEst}% del contrato)</span></span>`:'Sin estimaciones'},
+    {l:'Disponible p/ estimar',v:`<span style="color:${dispEst>=0?'#16a34a':'#dc2626'}">${fmt(dispEst)}</span>`},
     {l:'Avance del proyecto',v:p.avance+'%'},
     {l:'Estatus',v:`<span class="badge ${BC[p.estatus]||'ba'}">${p.estatus}</span>`},
   ].map(m=>`<div class="mc"><div class="ml">${m.l}</div><div class="mv">${m.v}</div></div>`).join('');
@@ -995,7 +1096,7 @@ function renderParts(p){
 const PAGE_TITLES = {
   crm:'CRM — Oportunidades', proyectos:'Proyectos', insumos:'Insumos',
   contratos:'Contratos', manodeobra:'Mano de Obra',
-  indirectos:'Indirectos', compras:'Compras'
+  indirectos:'Indirectos', compras:'Compras', estimaciones:'Estimaciones'
 };
 
 document.querySelectorAll('.ni').forEach(el => {
@@ -1694,6 +1795,184 @@ document.getElementById('cmp-tbody').addEventListener('click',e=>{
     return;
   }
 });
+
+// ── ESTIMACIONES ──
+function getEstTotal(pid){ return estimaciones.filter(e=>e.proyectoId===pid&&e.estatus!=='cancelada').reduce((a,e)=>a+e.monto,0); }
+
+function drawEstimaciones(){
+  // KPIs globales
+  const totalEstimado=estimaciones.filter(e=>e.estatus!=='cancelada').reduce((a,e)=>a+e.monto,0);
+  const totalContratos=proyectos.reduce((a,p)=>a+p.contrato,0);
+  const disponible=totalContratos-totalEstimado;
+  const pagadas=estimaciones.filter(e=>e.estatus==='pagada').length;
+
+  document.getElementById('est-kpis').innerHTML=[
+    {l:'Total estimaciones',v:estimaciones.length,s:pagadas+' pagadas'},
+    {l:'Monto total estimado',v:fmt(totalEstimado),s:'en todos los proyectos'},
+    {l:'Total contratos',v:fmt(totalContratos),s:'suma de contratos'},
+    {l:'Disponible p/ estimar',v:fmt(disponible),s:disponible<0?'⚠ Excede contratos':'por facturar'},
+  ].map(k=>`<div class="kpi"><div class="kpi-l">${k.l}</div><div class="kpi-v">${k.v}</div><div class="kpi-s">${k.s}</div></div>`).join('');
+
+  // Tabla de proyectos
+  document.getElementById('est-proj-tbody').innerHTML=proyectos.length
+    ? proyectos.map(p=>{
+        const montoEst=getEstTotal(p.id);
+        const disp=p.contrato-montoEst;
+        const pct=p.contrato?Math.round(montoEst/p.contrato*100):0;
+        const estColor=montoEst>p.contrato?'#dc2626':montoEst>0?'#2563eb':'#9e9e99';
+        const ests=estimaciones.filter(e=>e.proyectoId===p.id&&e.estatus!=='cancelada');
+        const ultima=ests.length?ests[ests.length-1]:'';
+        return `<tr class="est-proj-row" data-pid="${p.id}" style="cursor:pointer">
+          <td style="font-weight:500">${p.nombre}</td>
+          <td>${p.cliente}</td>
+          <td>${fmt(p.contrato)}</td>
+          <td style="color:${estColor};font-weight:600">${montoEst?fmt(montoEst):'-'}${montoEst?` <span style="font-size:10px;font-weight:400;color:${estColor}">(${pct}%)</span>`:''}</td>
+          <td style="color:${disp>=0?'#16a34a':'#dc2626'};font-weight:600">${fmt(disp)}</td>
+          <td style="text-align:center">
+            <span style="background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px">${ests.length}</span>
+          </td>
+          <td style="font-size:11px;color:#6b6b66">${ultima?ultima.folio+' · '+ultima.fecha:'—'}</td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="7" style="text-align:center;padding:28px;color:#9e9e99;font-size:12px">Sin proyectos disponibles.</td></tr>`;
+
+  // Si hay proyecto seleccionado, refrescar su detalle
+  if(estProjSel) renderEstDetalle(estProjSel);
+}
+
+function renderEstDetalle(p){
+  const ests=estimaciones.filter(e=>e.proyectoId===p.id);
+  const totalActivo=getEstTotal(p.id);
+  const disp=p.contrato-totalActivo;
+
+  document.getElementById('est-detalle').style.display='block';
+  document.getElementById('est-detalle-title').textContent=p.nombre+' — '+p.cliente;
+
+  const EST_COLORS={emitida:{bg:'#eff6ff',text:'#1d4ed8',label:'Emitida'},pagada:{bg:'#f0fdf4',text:'#15803d',label:'Pagada'},cancelada:{bg:'#fef2f2',text:'#b91c1c',label:'Cancelada'}};
+  document.getElementById('est-tbody').innerHTML=ests.length
+    ? ests.map(e=>{
+        const c=EST_COLORS[e.estatus]||EST_COLORS.emitida;
+        const pct=p.contrato?Math.round(e.monto/p.contrato*100):0;
+        return `<tr>
+          <td style="font-weight:700;color:#2563eb;font-size:12px">${e.folio}</td>
+          <td style="font-size:11px">${e.concepto}</td>
+          <td style="font-weight:600">${fmt(e.monto)}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div class="pb" style="flex:1"><div class="pf" style="width:${pct}%;background:#2563eb"></div></div>
+              <span style="font-size:10px;color:#6b6b66">${pct}%</span>
+            </div>
+          </td>
+          <td style="font-size:11px;color:#6b6b66">${e.fecha}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="background:${c.bg};color:${c.text};font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px">${c.label}</span>
+              ${e.estatus==='emitida'?`<button class="db est-pagar" data-eid="${e.id}" title="Marcar pagada" style="color:#15803d;font-size:11px">✓</button><button class="db est-cancel" data-eid="${e.id}" title="Cancelar" style="color:#b91c1c;font-size:11px">✕</button>`:''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="6" style="text-align:center;padding:20px;color:#9e9e99;font-size:12px">Sin estimaciones. Agrega la primera.</td></tr>`;
+
+  document.getElementById('est-total').innerHTML=`
+    <span>Total estimado (activo): <strong style="color:#2563eb">${fmt(totalActivo)}</strong></span>
+    <span>Monto contrato: <strong>${fmt(p.contrato)}</strong></span>
+    <span style="color:${disp>=0?'#16a34a':'#dc2626'};font-weight:600">Disponible: ${fmt(disp)}</span>`;
+}
+
+// Click en fila de proyecto → seleccionar y mostrar detalle
+document.getElementById('est-proj-tbody').addEventListener('click',e=>{
+  const row=e.target.closest('.est-proj-row'); if(!row)return;
+  const p=proyectos.find(x=>x.id===parseInt(row.dataset.pid)); if(!p)return;
+  estProjSel=p;
+  // highlight fila
+  document.querySelectorAll('.est-proj-row').forEach(r=>r.style.background='');
+  row.style.background='#eff6ff';
+  renderEstDetalle(p);
+});
+
+// Acciones en tabla de estimaciones (pagar / cancelar)
+document.getElementById('est-tbody').addEventListener('click',e=>{
+  const pagar=e.target.closest('.est-pagar');
+  const cancel=e.target.closest('.est-cancel');
+  if(pagar){
+    const est=estimaciones.find(x=>x.id===parseInt(pagar.dataset.eid));
+    if(est){est.estatus='pagada'; drawAll();}
+    return;
+  }
+  if(cancel){
+    const est=estimaciones.find(x=>x.id===parseInt(cancel.dataset.eid));
+    if(est){est.estatus='cancelada'; drawAll();}
+  }
+});
+
+// Botón + Nueva estimación
+document.getElementById('est-nueva-btn').addEventListener('click',()=>{
+  if(!estProjSel)return;
+  const p=estProjSel;
+  const montoEst=getEstTotal(p.id);
+  const disp=p.contrato-montoEst;
+  const pct=p.contrato?Math.round(montoEst/p.contrato*100):0;
+
+  document.getElementById('m-est-sub').textContent=p.nombre+' — '+p.cliente;
+  document.getElementById('m-est-contrato').textContent=fmt(p.contrato);
+  document.getElementById('m-est-ya').textContent=fmt(montoEst);
+  document.getElementById('m-est-disp').textContent=fmt(disp);
+  document.getElementById('m-est-disp').style.color=disp>=0?'#16a34a':'#dc2626';
+  document.getElementById('m-est-prog').style.width=Math.min(pct,100)+'%';
+  document.getElementById('est-concepto').value='';
+  document.getElementById('est-monto').value='';
+  document.getElementById('est-fecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('est-aviso').style.display='none';
+  document.getElementById('m-est').classList.add('open');
+});
+
+// Validación en tiempo real del monto
+document.getElementById('est-monto').addEventListener('input',()=>{
+  if(!estProjSel)return;
+  const v=parseInt(document.getElementById('est-monto').value)||0;
+  const disp=estProjSel.contrato-getEstTotal(estProjSel.id);
+  const aviso=document.getElementById('est-aviso');
+  if(v>disp){
+    aviso.textContent=`⚠ El monto (${fmt(v)}) supera el disponible (${fmt(disp)}). No se puede exceder el monto de contrato.`;
+    aviso.style.display='block';
+  } else { aviso.style.display='none'; }
+});
+
+// Guardar estimación
+document.getElementById('m-est-ok').addEventListener('click',()=>{
+  if(!estProjSel)return;
+  const monto=parseInt(document.getElementById('est-monto').value)||0;
+  const concepto=document.getElementById('est-concepto').value.trim();
+  if(monto<=0){document.getElementById('est-monto').focus();return;}
+  if(!concepto){document.getElementById('est-concepto').focus();return;}
+  const disp=estProjSel.contrato-getEstTotal(estProjSel.id);
+  if(monto>disp){
+    document.getElementById('est-aviso').style.display='block';
+    return;
+  }
+  const fecha=document.getElementById('est-fecha').value;
+  const fmtFecha=fecha?fecha.split('-').reverse().join('/'):'';
+  // folio consecutivo por proyecto
+  const numEst=estimaciones.filter(e=>e.proyectoId===estProjSel.id).length+1;
+  const folio='Est-'+numEst;
+  estimaciones.push({
+    id:nestId++,
+    folio,
+    proyectoId:estProjSel.id,
+    proyectoNombre:estProjSel.nombre,
+    concepto,
+    monto,
+    fecha:fmtFecha,
+    estatus:'emitida'
+  });
+  document.getElementById('m-est').classList.remove('open');
+  drawAll();
+});
+
+document.getElementById('m-est-x').addEventListener('click',()=>document.getElementById('m-est').classList.remove('open'));
+document.getElementById('m-est-cancel').addEventListener('click',()=>document.getElementById('m-est').classList.remove('open'));
+document.getElementById('m-est').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');});
 </script>
 </body>
 </html>
