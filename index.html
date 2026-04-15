@@ -11,8 +11,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg:#ffffff;--bg2:#f9fafb;--bg3:#f3f4f6;
-  --border:#e4e4e0; --border2:#cececa;
-  --text:#1a1a18; --text2:#6b6b66; --text3:#9e9e99;
+  --border:#e4e4e0; --border2:#cececa; --border3:#45e9ff;
+  --text:#1a1a18; --text2:#6b6b66; --text3:#9e9e99; --text4:#8fb6ff;
   --blue:#2563eb; --blue-bg:#eff6ff; --blue-text:#1d4ed8;
   --green:#16a34a; --green-bg:#f0fdf4; --green-text:#15803d;
   --red:#dc2626; --red-bg:#fef2f2; --red-text:#b91c1c;
@@ -25,27 +25,27 @@ body { font-family:'DM Sans',system-ui,sans-serif; background:#f3f4f6; min-heigh
 /* LOGIN */
 #login-screen {
   min-height:100vh; display:flex; align-items:center; justify-content:center;
-  background:linear-gradient(140deg,#111110 0%,#222220 60%,#111110 100%);
+  background:linear-gradient(140deg,#ffffff 0%,#F1F1F1 60%,#ffffff 100%);
   position:relative; overflow:hidden;
 }
 #login-screen::before {
   content:''; position:absolute; width:700px; height:700px; border-radius:50%;
-  background:radial-gradient(circle,rgba(37,99,235,.09) 0%,transparent 70%);
+  background:radial-gradient(circle,rgba(11, 89, 255, 0.09) 0%,transparent 10%);
   top:-150px; right:-150px; pointer-events:none;
 }
 .login-card {
   background:var(--bg); border-radius:16px; padding:40px; width:380px;
   position:relative; z-index:1;
-  box-shadow:0 24px 64px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.07);
+  box-shadow:0 24px 64px rgba(27, 27, 27, 0.4),0 0 0 1px rgba(191, 208, 255, 0.07);
   animation:fadeUp .3s ease forwards;
 }
 @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
-.login-logo-wrap { display:flex; flex-direction:column; align-items:center; margin-bottom:30px; }
+.login-logo-wrap { display:flex; flex-direction:column; align-items:center; margin-bottom:20px; }
 .login-logo {
-  width:60px; height:60px; background:#1a1a18; border-radius:14px;
+  width:60px; height:60px; background:#ffffff; border-radius:14px;
   display:flex; align-items:center; justify-content:center; margin-bottom:14px;
-  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  box-shadow:0 4px 20px rgba(183, 206, 255, 0.2);
 }
 .login-company { font-size:15px; font-weight:600; color:var(--text); margin-bottom:3px; }
 .login-subtitle { font-size:12px; color:var(--text3); }
@@ -67,7 +67,7 @@ body { font-family:'DM Sans',system-ui,sans-serif; background:#f3f4f6; min-heigh
   background:none; border:none; cursor:pointer; color:var(--text3); font-size:14px;
   padding:2px; font-family:inherit; transition:color .12s;
 }
-.tp:hover { color:var(--text2); }
+.tp:hover { color:var(--text4); }
 
 .pass-rules { display:flex; flex-wrap:wrap; gap:5px; margin-top:2px; }
 .rule {
@@ -86,10 +86,10 @@ body { font-family:'DM Sans',system-ui,sans-serif; background:#f3f4f6; min-heigh
 
 .lbtn {
   width:100%; padding:11px; font-size:13px; font-weight:600; font-family:inherit;
-  background:#1a1a18; color:#fff; border:none; border-radius:var(--r);
+  background:linear-gradient(140deg,#d7d6ff 0%,#0306a1 60%,#ffffff 100%); color:#fff; border:1px solid var (var(--border3)); border-radius:var(--r);
   cursor:pointer; transition:background .15s,transform .1s; margin-top:4px;
 }
-.lbtn:hover { background:#333; }
+.lbtn:hover { background:#015f96; }
 .lbtn:active { transform:scale(.99); }
 
 .demo-hint {
@@ -334,7 +334,7 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
   <div class="login-card">
     <div class="login-logo-wrap">
       <div class="login-logo">
-        <img src="logo.png" style="width:70%; height:70%; object-fit:contain;">
+        <img src="logo.jpg" style="width:200%; height:200%; object-fit:contain;">
       </div>
       <div class="login-company">GTC 360</div>
       <div class="login-subtitle">Control y seguimiento de proyectos</div>
@@ -373,7 +373,7 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
 <<div class="sidebar">
   <div class="sb-logo">
     <div class="sb-logo-box">
-      <img src="logo.png" style="width:100%; height:100%; object-fit:contain;">
+      <img src="logo.png" style="width:120%; height:120%; object-fit:contain;">
     </div>
     <span class="sb-name">GTC 360</span>
   </div>
