@@ -210,12 +210,16 @@ body { font-family:'DM Sans',system-ui,sans-serif; background:#f3f4f6; min-heigh
 }
 .logout:hover { color:var(--red); }
 
-.main { margin-left:200px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
-.topbar {
-  display:flex; align-items:center; gap:10px; padding:11px 24px;
-  border-bottom:1px solid var(--border); background:var(--bg);
-  position:sticky; top:0; z-index:5;
+/* Busca esta clase en tu archivo .css y déjala así */
+.main { 
+  margin-left: 200px; 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+  min-height: 100vh;
+  width: calc(100% - 200px);
 }
+
 .ptitle { font-size:13px; font-weight:600; color:var(--text); }
 .tdate { margin-left:auto; font-size:11px; color:var(--text3); }
 .content { padding:20px 24px; flex:1; }
@@ -651,23 +655,29 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
         </div>
       </div>
     </div>
-  </div>
 
-    <!-- DASHBOARDS PAGE -->
-    <div class="content page" id="page-dashboards">
-      <div class="sh">
-        <span class="st">Power BI Dashboards</span>
-        <button class="abtn" id="dash-add-btn">+ Agregar reporte</button>
-      </div>
-      <p style="font-size:11px;color:#9e9e99;margin-bottom:16px">Haz clic en un reporte para visualizarlo en pantalla completa dentro del portal.</p>
-      <div id="dash-grid" style="
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(220px, 240px));
-  gap:12px;
-  justify-content:start;
-"></div>
-    </div>
+
+<!-- DASHBOARDS PAGE -->
+<div class="content page" id="page-dashboards">
+  <div class="sh" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 24px;">
+    <span class="st">Power BI Dashboards</span>
+    <button class="abtn" id="dash-add-btn">+ Agregar reporte</button>
   </div>
+  
+  <p style="font-size:11px; color:#9e9e99; margin-bottom:16px; padding: 0 24px;">
+    Haz clic en un reporte para visualizarlo en pantalla completa dentro del portal.
+  </p>
+
+  <div id="dash-grid" style="
+    display: grid !important; 
+    grid-template-columns: repeat(auto-fit, 220px); 
+    gap: 20px; 
+    justify-content: center; 
+    width: 100%; 
+    margin: 0 auto;
+  "></div>
+</div>
+
 
   <!-- VISOR FULLSCREEN POWER BI -->
   <div id="bi-viewer" style="position:fixed;inset:0;left:200px;background:#1a1a18;z-index:60;display:none;flex-direction:column">
