@@ -672,7 +672,9 @@ select.bs { font-size:11px; border:none; background:transparent; cursor:pointer;
   <!-- VISOR FULLSCREEN POWER BI -->
   <div id="bi-viewer" style="position:fixed;inset:0;left:200px;background:#1a1a18;z-index:60;display:none;flex-direction:column">
     <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;background:#111110;border-bottom:1px solid #333;flex-shrink:0">
-      <button id="bi-back" style="font-size:11px;padding:5px 12px;border:1px solid #444;background:transparent;border-radius:8px;cursor:pointer;color:#ccc;font-family:inherit">← Volver</button>
+      <button id="bi-back" style="font-size:11px;padding:5px 12px;border:1px solid #444;background:transparent;border-radius:8px;cursor:pointer;color:#ccc;font-family:inherit;" 
+        onmouseenter="this.style.background='#FAFAFF'" 
+        onmouseleave="this.style.background='transparent'">← Volver</button>
       <span id="bi-title" style="font-size:13px;font-weight:600;color:#fff"></span>
       <span id="bi-category" style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#222;color:#9e9e99;margin-left:4px"></span>
     </div>
@@ -2108,7 +2110,7 @@ function drawDashboards(){
       <div style="font-size:10px;color:#9e9e99">Agregado: ${d.fecha}</div>
       <div style="display:flex;gap:6px;margin-top:2px">
         <button onclick="openBiViewer(${d.id})" style="flex:1;font-size:11px;font-weight:600;padding:7px;border:none;background:#1a1a18;color:#fff;border-radius:8px;cursor:pointer;font-family:inherit;transition:background .12s"
-          onmouseenter="this.style.background='#333'" onmouseleave="this.style.background='#1a1a18'">
+          onmouseenter="this.style.background='#000099'" onmouseleave="this.style.background='#1a1a18'">
           Ver reporte →
         </button>
         <button onclick="editDash(${d.id})" style="font-size:11px;padding:7px 10px;border:1px solid #e4e4e0;background:#fff;border-radius:8px;cursor:pointer;color:#6b6b66;font-family:inherit;transition:background .12s"
@@ -2119,6 +2121,7 @@ function drawDashboards(){
     </div>`;
   }).join('');
 }
+
 
 function openBiViewer(id){
   const d=dashboards.find(x=>x.id===id); if(!d)return;
